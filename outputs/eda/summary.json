@@ -1,0 +1,37 @@
+{
+  "time_steps": 34272,
+  "sensors": 207,
+  "first_timestamp": "2012-03-01 00:00:00",
+  "last_timestamp": "2012-06-27 23:55:00",
+  "split_windows": {
+    "train": 23974,
+    "val": 3425,
+    "test": 6850
+  },
+  "split_first_target_time": {
+    "train": "2012-03-01 01:00:00",
+    "val": "2012-05-23 06:50:00",
+    "test": "2012-06-04 04:15:00"
+  },
+  "missing_share_all": 0.0811,
+  "missing_share_by_split_period": {
+    "train": 0.0713,
+    "val": 0.0695,
+    "test": 0.1209
+  },
+  "sensors_over_20pct_missing": 1,
+  "steps_with_all_sensors_missing": 2148,
+  "longest_outage_hours_median_sensor": 31.8,
+  "longest_outage_hours_max": 140.2,
+  "graph_edges_excluding_self": 1515,
+  "train_mean_speed_mph": 58.58,
+  "train_std_speed_mph": 12.83,
+  "train_share_below_40_mph": 0.105,
+  "autocorrelation_15_30_60_min": [
+    0.834,
+    0.742,
+    0.607
+  ],
+  "residual_corr_median_within_2km": 0.512,
+  "residual_corr_median_no_road_path": 0.048
+}
