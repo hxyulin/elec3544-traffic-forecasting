@@ -1,0 +1,22 @@
+.venv/
+__pycache__/
+.pytest_cache/
+data/
+outputs/predictions/
+
+# Private assessed materials and course files stay outside Git.
+report/
+output/
+docs/report_preparation.md
+docs/presentation_prototype.md
+docs/learning_notes_local.md
+*.pdf
+*.ppt
+*.pptx
+*.doc
+*.docx
+*.tex
+*.sty
+*.xls
+*.xlsx
+*.zip
