@@ -59,3 +59,37 @@ The ridge and gradient-boosting models train one model per horizon, pooled acros
 | Gradient boosting | 3.08 | 3.50 | 3.86 | 5.67 | 6.56 | 7.28 | 8.4% | 10.0% | 11.5% |
 
 MAE and RMSE are in mph. As a check, DCRNN reports historical-average errors of 4.16 MAE, 7.80 RMSE and 13.0% MAPE. For reference, DCRNN itself reaches 2.77, 3.15 and 3.60 MAE at the three horizons.
+
+## Preliminary errors by traffic condition
+
+Run `uv run scripts/error_analysis.py` after evaluation. It reads the saved test
+predictions and writes `outputs/error_analysis/condition_metrics.csv`, a plot,
+and verification notes. It checks prediction alignment and reproduces every
+model's aggregate metrics before calculating the condition results.
+
+The current EDA uses 40 mph as a provisional congestion threshold. Here we
+group forecasts by their observed target speed, excluding missing targets.
+This describes forecast errors retrospectively; it does not measure congestion
+detection. The threshold remains subject to the planned EDA comparison.
+
+| Model | Below 40 mph, MAE 15 min | MAE 30 min | MAE 60 min |
+|---|---|---|---|
+| Persistence | 7.34 | 9.67 | 13.42 |
+| Historical average | 12.89 | 12.90 | 12.90 |
+| Ridge, lags only | 8.04 | 11.28 | 16.58 |
+| Ridge | 7.88 | 9.79 | 11.51 |
+| Gradient boosting | 7.65 | 9.47 | 11.11 |
+
+Low-speed targets account for about 12.3% of observed test forecast-target pairs.
+Gradient boosting has the lowest overall MAE, but persistence does better on
+low-speed targets at 15 minutes (7.34 versus 7.65 mph). At 60 minutes, gradient
+boosting reduces low-speed MAE by 17.2% relative to persistence. Its MAE is still
+11.11 mph below 40 mph, compared with 2.84 mph at or above 40 mph. These results
+support reporting traffic conditions separately in the final model comparison.
+Overlapping windows mean the forecast-target pairs are not independent samples.
+
+Ridge with profile features and gradient boosting remain preliminary: their
+training profile includes each training row's own target. The correction is
+listed in `docs/tasks.md`. This analysis does not fit or select any models.
+
+![Test MAE by observed target speed](outputs/error_analysis/condition_mae.png)
