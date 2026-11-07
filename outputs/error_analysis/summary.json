@@ -1,0 +1,13 @@
+{
+  "split": "test",
+  "threshold_mph": 40,
+  "condition_uses": "observed target speed",
+  "threshold_status": "provisional, inherited from scripts/eda.py",
+  "missing_targets": "zero speeds excluded from all conditions",
+  "verification": "All 15 model/horizon aggregates match metrics.csv to its rounding precision; prediction starts, horizons, shape and finiteness checked; condition counts partition observed targets.",
+  "limitations": [
+    "Descriptive analysis of existing predictions; no model selection or tuning.",
+    "Ridge and gradient boosting retain the known training-profile self-inclusion limitation.",
+    "Sliding windows are dependent; counts are forecast-target pairs, not independent samples."
+  ]
+}
