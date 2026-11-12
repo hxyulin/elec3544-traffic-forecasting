@@ -1,0 +1,7 @@
+ seed  variant horizon      mae     rmse  best_epoch  epochs
+   42  enabled   macro 3.283879 6.743248          49      50
+   42 disabled   macro 3.541362 7.378608          50      50
+   43  enabled   macro 3.210277 6.582795          50      50
+   43 disabled   macro 3.538751 7.373135          50      50
+   44  enabled   macro 3.203758 6.556665          49      50
+   44 disabled   macro 3.545737 7.417988          48      50

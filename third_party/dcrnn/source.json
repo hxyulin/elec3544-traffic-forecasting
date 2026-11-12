@@ -1,0 +1,10 @@
+{
+  "repository": "https://github.com/liyaguang/DCRNN",
+  "commit": "602afd9d767d3aa1c9b3eac51710d6aeee12c227",
+  "files": {
+    "model/dcrnn_cell.py": "c5a8118b8469b7aafb82a169c4310d8c4d04b042539238d1566ff09224a8071e",
+    "model/dcrnn_model.py": "4a7e6b117da73d418be61ee44a921b000e12ffbfabc467e0a3300665ee6b0e90",
+    "data/model/dcrnn_la.yaml": "7dbc9585193877b36021850af457d0d298b3e3a92be85949e9b9405f2a86e67f",
+    "LICENSE": "29414ec274aafdfde2e0e5f5e55f136fcd3d5e8514ab54f1809298eeb1fd5a43"
+  }
+}

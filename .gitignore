@@ -8,6 +8,8 @@ tmp/
 # Local tools and macOS metadata
 .ruff_cache/
 .DS_Store
+outputs/experiments/dcrnn_reference/**/*.pt
+outputs/experiments/dcrnn_reference/**/*.npy
 
 # Private assessed materials and course files stay outside Git.
 report/

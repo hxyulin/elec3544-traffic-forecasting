@@ -1,0 +1,4 @@
+{
+  "speed_train_val_graph_hashes_match": true,
+  "confounds": "features, row versus full-network sampling, 3 versus 12 target loss, batch size, initialization, compute and observed-target exposure"
+}

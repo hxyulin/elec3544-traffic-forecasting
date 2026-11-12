@@ -1,0 +1,26 @@
+{
+  "completed": true,
+  "epochs": 50,
+  "best_epoch": 48,
+  "metrics": [
+    {
+      "mae": 2.8190000396928196,
+      "rmse": 5.743908919008006
+    },
+    {
+      "mae": 3.4267908882299674,
+      "rmse": 7.263467971363017
+    },
+    {
+      "mae": 4.391420729426941,
+      "rmse": 9.246588012412895
+    }
+  ],
+  "restored_exact": true,
+  "prediction_sha256": "f5fda826565b1c06eb8fc593e8711539f7884f81dd97269b7aaaf12302d6aa67",
+  "checkpoint_sha256": "9e3f04beef554028a6ceee15652292a32fc9c0c47d96916d281ab8e2e1861b63",
+  "seconds": 351.67460408702027,
+  "peak_memory": 195863552,
+  "windows": 241500,
+  "observed_targets": 556746453
+}

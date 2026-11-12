@@ -1,0 +1,60 @@
+{
+  "source": {
+    "src/traffic/dcrnn.py": "d294c2b9656621ce7adce2e4949d02fcaa615a06696cb3516e7cea9f2ee62652",
+    "scripts/try_dcrnn.py": "2296fcd6e9f43286c1185579ba1938a0e2efe29b5d94f24292e656ca64c9ba6d",
+    "scripts/try_capacity.py": "59076af0dce447eaa0d9e73dce4c60e603314431d2ecbe04eac2ce2aec805baf",
+    "src/traffic/data.py": "818b74f7dc0a85f6028cb54f820543102232f52b2391f1962f6b95096ed12fc0"
+  },
+  "architecture": "one layer hidden32; two Chebyshev steps per transposed random walk; independent direction reset; 5 slots",
+  "objective": "all12 observed masked MAE",
+  "selection": "mean validation MAE steps3/6/12",
+  "epochs": 50,
+  "patience": 8,
+  "batch_size": 16,
+  "windows_per_epoch": 4830,
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "sampling": "numpy default_rng(seed) distinct train windows per epoch; torch CPU Generator(seed+1000), scalar per decoder step, missing fallback prediction",
+  "scheduled_sampling": "2000/(2000+exp(global_step/2000))",
+  "optimizer": "AdamW lr.001 wd1e-4 clip1 plateau factor.5 patience3 threshold1e-4",
+  "normalizer": [
+    58.58462142944336,
+    12.822317123413086
+  ],
+  "splits": {
+    "train": [
+      0,
+      23962,
+      23963
+    ],
+    "val": [
+      23974,
+      27398,
+      3425
+    ]
+  },
+  "arrays": {
+    "speed": "d051326da99e88c4e136b34e5f1b9500a4ab6fadd27d0d7f02cfe20d9b2e7d89",
+    "adjacency": "b7a7d2f06dad90ad8dd6aee96fc388c075ffe974652828d97a5328abc2e1d857",
+    "filled": "938b32d28cc8812b4b186783bd45128ee8ea2d28499f2537f067e2de3b61fb2e",
+    "train": "8db5db73200cb0fe391ff3c7a0825b6ade8a79e50f43e7cd2177c787be8a1784",
+    "val": "54c480fefdea713cd9b56d7ad71fa1aa5cfd8f955e0ce154c59998749a0c046d"
+  },
+  "data": {
+    "distances_la.csv": "a576a2a3e28dbb959be6da22688e24dd1b246b81264595e129147c256cd53de5",
+    "sensor_locations_la.csv": "eb8ea96e07358b45d0e4ba3b89c2673fa20c54af50150249e627389e749ade6f",
+    "sensor_ids_la.txt": "3ba026caa2e6263ab0ea54b0fa1b125dbfa7216544cd05313b555e826292b990",
+    "metr_la.h5": "e00a068ca5ec0abcf225b5a044bf962cc1c32c4fef31bad8187c04f342ef0990"
+  },
+  "run_timeout": 1800,
+  "total_timeout": 10800,
+  "assistance": "AI-assisted exploratory work for student inspection",
+  "initialization": {
+    "42": "1d6b9d066b0a93eb469336df973d0db1f9021a771627fc2fe81fd02c99837f17",
+    "43": "0e19e5c6b59b6738efceaa40ede6f6dd3ced21753a1eae47095da419742f0362",
+    "44": "d7b3c72489725cd3ee67441a12b83d568fec53365cf44cbbc4bc0e4aae4e03a2"
+  }
+}

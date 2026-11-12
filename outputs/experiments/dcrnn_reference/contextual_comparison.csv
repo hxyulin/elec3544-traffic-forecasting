@@ -1,0 +1,73 @@
+seed,variant,horizon,mae,rmse,best_epoch,epochs,family,size,hop,budget,mape,n,cap_reached
+42,enabled,3,2.676958423487417,5.2709982907110025,49,50,DCGRU encoder-decoder,,,,,,
+42,enabled,6,3.1872101077071022,6.594935172830347,49,50,DCGRU encoder-decoder,,,,,,
+42,enabled,12,3.9874693208349523,8.363811457496068,49,50,DCGRU encoder-decoder,,,,,,
+42,enabled,macro,3.283879284009824,6.743248307012472,49,50,DCGRU encoder-decoder,,,,,,
+42,disabled,3,2.819522756788206,5.727151004605196,50,50,DCGRU encoder-decoder,,,,,,
+42,disabled,6,3.424275794263921,7.226458863257421,50,50,DCGRU encoder-decoder,,,,,,
+42,disabled,12,4.38028619313092,9.182212911858421,50,50,DCGRU encoder-decoder,,,,,,
+42,disabled,macro,3.5413615813943493,7.378607593240346,50,50,DCGRU encoder-decoder,,,,,,
+43,enabled,3,2.6438885598732313,5.19434512304842,50,50,DCGRU encoder-decoder,,,,,,
+43,enabled,6,3.128133288282709,6.466376589521728,50,50,DCGRU encoder-decoder,,,,,,
+43,enabled,12,3.858810606308171,8.087664720358925,50,50,DCGRU encoder-decoder,,,,,,
+43,enabled,macro,3.2102774848213707,6.582795477643025,50,50,DCGRU encoder-decoder,,,,,,
+43,disabled,3,2.815929903572196,5.717008871469788,50,50,DCGRU encoder-decoder,,,,,,
+43,disabled,6,3.4204982817219545,7.218939318199906,50,50,DCGRU encoder-decoder,,,,,,
+43,disabled,12,4.379824793587191,9.183457850375449,50,50,DCGRU encoder-decoder,,,,,,
+43,disabled,macro,3.538750992960447,7.373135346681714,50,50,DCGRU encoder-decoder,,,,,,
+44,enabled,3,2.639743727572865,5.192562343816759,49,50,DCGRU encoder-decoder,,,,,,
+44,enabled,6,3.1196671259408126,6.4373294405859935,49,50,DCGRU encoder-decoder,,,,,,
+44,enabled,12,3.8518619019913323,8.040103717669647,49,50,DCGRU encoder-decoder,,,,,,
+44,enabled,macro,3.2037575851683364,6.556665167357465,49,50,DCGRU encoder-decoder,,,,,,
+44,disabled,3,2.8190000396928196,5.743908919008006,48,50,DCGRU encoder-decoder,,,,,,
+44,disabled,6,3.4267908882299674,7.263467971363017,48,50,DCGRU encoder-decoder,,,,,,
+44,disabled,12,4.391420729426941,9.246588012412895,48,50,DCGRU encoder-decoder,,,,,,
+44,disabled,macro,3.545737219116576,7.4179883009279735,48,50,DCGRU encoder-decoder,,,,,,
+42,current/one,3,2.549955270473388,5.01038468677116,48,71,"MLP, contextual comparison only",current,one,50.0,6.714819765031156,659591.0,False
+42,current/one,6,2.9057072797221832,5.99695486592633,48,71,"MLP, contextual comparison only",current,one,50.0,8.23924910884363,659589.0,False
+42,current/one,12,3.303442518991892,6.965819623179936,48,71,"MLP, contextual comparison only",current,one,50.0,9.97924324507031,659595.0,False
+42,current/one,macro,2.919701689729154,5.991053058625809,48,71,"MLP, contextual comparison only",current,one,50.0,,,False
+42,current/two,3,2.543146436944399,4.996717656483838,48,56,"MLP, contextual comparison only",current,two,50.0,6.670989576818455,659591.0,False
+42,current/two,6,2.891849523935368,5.960249364829612,48,56,"MLP, contextual comparison only",current,two,50.0,8.159504885453678,659589.0,False
+42,current/two,12,3.288190612623515,6.916415603112839,48,56,"MLP, contextual comparison only",current,two,50.0,9.883804928205588,659595.0,False
+42,current/two,macro,2.907728857834428,5.957794208142096,48,56,"MLP, contextual comparison only",current,two,50.0,,,False
+42,wide/one,3,2.543498424411087,4.988860463355859,46,69,"MLP, contextual comparison only",wide,one,50.0,6.72225121024739,659591.0,False
+42,wide/one,6,2.895788752833101,5.972160848475108,46,69,"MLP, contextual comparison only",wide,one,50.0,8.25244417245682,659589.0,False
+42,wide/one,12,3.2895651264046237,6.942205150016526,46,69,"MLP, contextual comparison only",wide,one,50.0,9.988791136928592,659595.0,False
+42,wide/one,macro,2.909617434549604,5.967742153949164,46,69,"MLP, contextual comparison only",wide,one,50.0,,,False
+42,wide/two,3,2.531132891888513,4.966247477451208,46,54,"MLP, contextual comparison only",wide,two,50.0,6.623115330489247,659591.0,False
+42,wide/two,6,2.874434717394556,5.914153537416867,46,54,"MLP, contextual comparison only",wide,two,50.0,8.092880044416328,659589.0,False
+42,wide/two,12,3.259938747890307,6.854339222816971,46,54,"MLP, contextual comparison only",wide,two,50.0,9.78037339269799,659595.0,False
+42,wide/two,macro,2.8885021190577924,5.911580079228348,46,54,"MLP, contextual comparison only",wide,two,50.0,,,False
+43,current/one,3,2.558422892870203,5.021598124001656,49,75,"MLP, contextual comparison only",current,one,50.0,6.6772309202438525,659591.0,False
+43,current/one,6,2.916192162768845,6.004367157151847,49,75,"MLP, contextual comparison only",current,one,50.0,8.186265094793681,659589.0,False
+43,current/one,12,3.3238518608830123,6.981386923200802,49,75,"MLP, contextual comparison only",current,one,50.0,9.967163177966237,659595.0,False
+43,current/one,macro,2.932822305507353,6.002450734784769,49,75,"MLP, contextual comparison only",current,one,50.0,,,False
+43,current/two,3,2.552818063878937,5.007740702961859,46,79,"MLP, contextual comparison only",current,two,50.0,6.622475527353103,659591.0,False
+43,current/two,6,2.898571319665413,5.955944613837383,46,79,"MLP, contextual comparison only",current,two,50.0,8.11230305745389,659589.0,False
+43,current/two,12,3.2896839136192435,6.889875797961255,46,79,"MLP, contextual comparison only",current,two,50.0,9.857715582465447,659595.0,False
+43,current/two,macro,2.9136910990545317,5.9511870382535,46,79,"MLP, contextual comparison only",current,two,50.0,,,False
+43,wide/one,3,2.541560341988128,4.998711649850381,49,57,"MLP, contextual comparison only",wide,one,50.0,6.650355489646474,659591.0,False
+43,wide/one,6,2.8975574268572406,5.985085353795077,49,57,"MLP, contextual comparison only",wide,one,50.0,8.17633723326716,659589.0,False
+43,wide/one,12,3.295856880586637,6.968691882381545,49,57,"MLP, contextual comparison only",wide,one,50.0,9.93721235674136,659595.0,False
+43,wide/one,macro,2.9116582164773352,5.984162962009001,49,57,"MLP, contextual comparison only",wide,one,50.0,,,False
+43,wide/two,3,2.532214533232251,4.984853862520131,49,57,"MLP, contextual comparison only",wide,two,50.0,6.604322714621964,659591.0,False
+43,wide/two,6,2.8784337855888134,5.949708882453869,49,57,"MLP, contextual comparison only",wide,two,50.0,8.104430460286236,659589.0,False
+43,wide/two,12,3.268947706667928,6.900813101532147,49,57,"MLP, contextual comparison only",wide,two,50.0,9.806489037398686,659595.0,False
+43,wide/two,macro,2.893198675162997,5.945125282168715,49,57,"MLP, contextual comparison only",wide,two,50.0,,,False
+44,current/one,3,2.553106214759594,5.013012303174838,49,84,"MLP, contextual comparison only",current,one,50.0,6.759160681080213,659591.0,False
+44,current/one,6,2.907281101590105,5.997011554127363,49,84,"MLP, contextual comparison only",current,one,50.0,8.295253979034939,659589.0,False
+44,current/one,12,3.312910725952405,6.975003837505965,49,84,"MLP, contextual comparison only",current,one,50.0,10.053755510142407,659595.0,False
+44,current/one,macro,2.9244326807673686,5.995009231602722,49,84,"MLP, contextual comparison only",current,one,50.0,,,False
+44,current/two,3,2.5466905351863067,4.990178419292361,50,67,"MLP, contextual comparison only",current,two,50.0,6.697703210163682,659591.0,False
+44,current/two,6,2.891443868183093,5.937637095111817,50,67,"MLP, contextual comparison only",current,two,50.0,8.143022387527903,659589.0,False
+44,current/two,12,3.294514030786659,6.896020987545528,50,67,"MLP, contextual comparison only",current,two,50.0,9.89935219757781,659595.0,False
+44,current/two,macro,2.9108828113853527,5.941278833983236,50,67,"MLP, contextual comparison only",current,two,50.0,,,False
+44,wide/one,3,2.537429709151924,4.992446817459481,49,65,"MLP, contextual comparison only",wide,one,50.0,6.654383098661596,659591.0,False
+44,wide/one,6,2.89481858076027,5.985956361057453,49,65,"MLP, contextual comparison only",wide,one,50.0,8.187513690550201,659589.0,False
+44,wide/one,12,3.2954632494164224,6.970834075120637,49,65,"MLP, contextual comparison only",wide,one,50.0,9.929589590718976,659595.0,False
+44,wide/one,macro,2.9092371797762056,5.983079084545857,49,65,"MLP, contextual comparison only",wide,one,50.0,,,False
+44,wide/two,3,2.531650215119002,4.960482133541575,40,48,"MLP, contextual comparison only",wide,two,50.0,6.564482719977262,659591.0,False
+44,wide/two,6,2.8769333113446574,5.9138876655576205,40,48,"MLP, contextual comparison only",wide,two,50.0,8.047701786085936,659589.0,False
+44,wide/two,12,3.2726705460283125,6.881148869815828,40,48,"MLP, contextual comparison only",wide,two,50.0,9.733055487355704,659595.0,False
+44,wide/two,macro,2.893751357497324,5.918506222971675,40,48,"MLP, contextual comparison only",wide,two,50.0,,,False

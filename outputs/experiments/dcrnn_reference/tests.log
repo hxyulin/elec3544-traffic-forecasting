@@ -1,0 +1,18 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.14, pytest-9.2.0, pluggy-1.7.0
+rootdir: <study>
+configfile: pyproject.toml
+plugins: anyio-4.16.0
+collected 58 items
+
+tests/test_analysis.py .....                                             [  8%]
+tests/test_attention.py .......                                          [ 20%]
+tests/test_capacity.py ...                                               [ 25%]
+tests/test_data.py .......                                               [ 37%]
+tests/test_dcrnn.py .....                                                [ 46%]
+tests/test_identity.py .........                                         [ 62%]
+tests/test_models.py .........                                           [ 77%]
+tests/test_multihop.py ....                                              [ 84%]
+tests/test_neural.py .........                                           [100%]
+
+============================== 58 passed in 3.50s ==============================
