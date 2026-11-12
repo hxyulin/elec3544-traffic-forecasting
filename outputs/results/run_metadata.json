@@ -1,0 +1,40 @@
+{
+  "python": "3.14.8",
+  "packages": {
+    "numpy": "2.5.4",
+    "pandas": "2.3.3",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.18.1"
+  },
+  "selected_settings": {
+    "ridge_alpha": {
+      "lags": 0.1,
+      "+calendar": 0.1,
+      "+profile": 1000.0,
+      "+neighbours": 1000.0
+    },
+    "gb_params": {
+      "max_leaf_nodes": 127,
+      "learning_rate": 0.05,
+      "min_samples_leaf": 400
+    }
+  },
+  "profile": "target calendar week excluded from both training profile features and fallbacks",
+  "split": "DCRNN benchmark window split; adjacent target periods share 11 timestamps",
+  "boosting_sampling_seeds": "training: horizon step; validation: 100 + horizon step",
+  "boosting_random_state": 0,
+  "max_train_rows_boosting": 1000000,
+  "thread_limits": {
+    "OPENBLAS_NUM_THREADS": "4",
+    "OMP_NUM_THREADS": "4"
+  },
+  "models_evaluated": [
+    "persistence",
+    "historical_average",
+    "ridge_lags",
+    "ridge",
+    "ridge_neighbours",
+    "gradient_boosting",
+    "gradient_boosting_neighbours"
+  ]
+}

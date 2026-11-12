@@ -3,6 +3,7 @@ __pycache__/
 .pytest_cache/
 data/
 outputs/predictions/
+tmp/
 
 # Private assessed materials and course files stay outside Git.
 report/

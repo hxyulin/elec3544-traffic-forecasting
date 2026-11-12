@@ -1,0 +1,61 @@
+model,feature_set,split,horizon,minutes,mae,rmse,mape,n
+ridge,lags,val,3,15,3.1273,5.7359,8.2763,659591
+ridge,lags,val,6,30,3.8849,7.1377,11.0127,659589
+ridge,lags,val,12,60,5.1237,8.9143,15.2946,659595
+ridge,lags,test,3,15,3.3795,6.1019,9.0184,1246273
+ridge,lags,test,6,30,4.2062,7.5966,11.9488,1246258
+ridge,lags,test,12,60,5.5556,9.5245,16.6447,1246222
+gradient_boosting,lags,val,3,15,2.9422,5.5005,7.9509,659591
+gradient_boosting,lags,val,6,30,3.6232,6.8017,10.5623,659589
+gradient_boosting,lags,val,12,60,4.5977,8.2935,14.1369,659595
+gradient_boosting,lags,test,3,15,3.1783,5.8245,8.6010,1246273
+gradient_boosting,lags,test,6,30,3.9260,7.1869,11.3186,1246258
+gradient_boosting,lags,test,12,60,5.0336,8.8265,15.2626,1246222
+ridge,+calendar,val,3,15,3.1393,5.7208,8.2936,659591
+ridge,+calendar,val,6,30,3.9119,7.1019,11.0390,659589
+ridge,+calendar,val,12,60,5.1597,8.8272,15.2765,659595
+ridge,+calendar,test,3,15,3.3997,6.0864,9.0483,1246273
+ridge,+calendar,test,6,30,4.2552,7.5592,12.0081,1246258
+ridge,+calendar,test,12,60,5.6447,9.4334,16.7027,1246222
+gradient_boosting,+calendar,val,3,15,2.8159,5.1707,7.5642,659591
+gradient_boosting,+calendar,val,6,30,3.2864,6.1135,9.3421,659589
+gradient_boosting,+calendar,val,12,60,3.7494,6.9669,10.9907,659595
+gradient_boosting,+calendar,test,3,15,2.9948,5.4394,8.1696,1246273
+gradient_boosting,+calendar,test,6,30,3.4618,6.3691,10.0144,1246258
+gradient_boosting,+calendar,test,12,60,3.8937,7.1653,11.7024,1246222
+ridge,+profile,val,3,15,3.0810,5.4599,8.2041,659591
+ridge,+profile,val,6,30,3.5730,6.4301,10.0392,659589
+ridge,+profile,val,12,60,4.0241,7.2833,11.6948,659595
+ridge,+profile,test,3,15,3.2123,5.6931,8.7724,1246273
+ridge,+profile,test,6,30,3.6794,6.6110,10.6384,1246258
+ridge,+profile,test,12,60,4.0813,7.3561,12.3153,1246222
+gradient_boosting,+profile,val,3,15,2.8010,5.1492,7.4873,659591
+gradient_boosting,+profile,val,6,30,3.2612,6.1042,9.2017,659589
+gradient_boosting,+profile,val,12,60,3.7232,6.9771,10.8536,659595
+gradient_boosting,+profile,test,3,15,2.9585,5.4022,8.0432,1246273
+gradient_boosting,+profile,test,6,30,3.4003,6.3230,9.7915,1246258
+gradient_boosting,+profile,test,12,60,3.8176,7.1250,11.4557,1246222
+ridge,+neighbours,val,3,15,3.0787,5.3836,8.1116,659591
+ridge,+neighbours,val,6,30,3.5665,6.3508,9.9287,659589
+ridge,+neighbours,val,12,60,4.0133,7.2271,11.6021,659595
+ridge,+neighbours,test,3,15,3.2285,5.6256,8.7046,1246273
+ridge,+neighbours,test,6,30,3.6933,6.5481,10.5639,1246258
+ridge,+neighbours,test,12,60,4.0885,7.3157,12.2587,1246222
+gradient_boosting,+neighbours,val,3,15,2.7075,4.9066,7.1093,659591
+gradient_boosting,+neighbours,val,6,30,3.1545,5.8539,8.7949,659589
+gradient_boosting,+neighbours,val,12,60,3.6264,6.7702,10.5046,659595
+gradient_boosting,+neighbours,test,3,15,2.8866,5.1638,7.6697,1246273
+gradient_boosting,+neighbours,test,6,30,3.3316,6.1109,9.4170,1246258
+gradient_boosting,+neighbours,test,12,60,3.7706,6.9858,11.1849,1246222
+ridge,+profile (leaky),val,3,15,3.2259,5.5774,8.4522,659591
+ridge,+profile (leaky),val,6,30,3.6554,6.5173,10.0997,659589
+ridge,+profile (leaky),val,12,60,4.0282,7.3381,11.5294,659595
+ridge,+profile (leaky),test,3,15,3.3569,5.8042,9.0511,1246273
+ridge,+profile (leaky),test,6,30,3.7614,6.6899,10.7207,1246258
+ridge,+profile (leaky),test,12,60,4.0779,7.3886,12.1364,1246222
+gradient_boosting,+profile (leaky),val,3,15,2.9237,5.3891,7.8105,659591
+gradient_boosting,+profile (leaky),val,6,30,3.3607,6.3162,9.4037,659589
+gradient_boosting,+profile (leaky),val,12,60,3.7735,7.1124,10.8786,659595
+gradient_boosting,+profile (leaky),test,3,15,3.0750,5.6530,8.3557,1246273
+gradient_boosting,+profile (leaky),test,6,30,3.4924,6.5479,9.9950,1246258
+gradient_boosting,+profile (leaky),test,12,60,3.8586,7.2747,11.4978,1246222

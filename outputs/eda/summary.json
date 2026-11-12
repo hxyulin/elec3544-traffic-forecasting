@@ -33,5 +33,88 @@
     0.607
   ],
   "residual_corr_median_within_2km": 0.512,
-  "residual_corr_median_no_road_path": 0.048
+  "residual_corr_median_no_road_path": 0.048,
+  "congestion": {
+    "comparison": [
+      {
+        "rule": "fixed_40_mph",
+        "flagged_readings": 484477,
+        "observed_readings": 4613185,
+        "share": 0.10502006748049342,
+        "sensors_flagged": 207,
+        "median_sensor_share": 0.07880926130099228,
+        "threshold_min_mph": 40.0,
+        "threshold_max_mph": 40.0
+      },
+      {
+        "rule": "relative_60pct_p85",
+        "flagged_readings": 422643,
+        "observed_readings": 4613185,
+        "share": 0.09161631280774563,
+        "sensors_flagged": 207,
+        "median_sensor_share": 0.06992883348804314,
+        "threshold_min_mph": 21.733333587646484,
+        "threshold_max_mph": 42.0
+      }
+    ],
+    "disagreement_share": 0.014853945809673794,
+    "selected_rule": "fixed_40_mph",
+    "threshold_mph": 40,
+    "selection_uses": "training data only",
+    "reason": "Use a common absolute low-speed definition for interpretable cross-sensor errors and continuity with baseline analysis. The relative rule is retained as a sensitivity comparison; neither rule is ground-truth congestion."
+  },
+  "missing_decomposition": [
+    {
+      "split": "train",
+      "steps": 23985,
+      "missing_share": 0.0712522621324318,
+      "network_offline_steps": 1299,
+      "network_offline_share": 0.0541588492808005,
+      "partial_missing_contribution": 0.017093412851631302,
+      "missing_share_when_network_not_offline": 0.018072181400263457
+    },
+    {
+      "split": "val",
+      "steps": 3436,
+      "missing_share": 0.06945498923025875,
+      "network_offline_steps": 181,
+      "network_offline_share": 0.052677532013969734,
+      "partial_missing_contribution": 0.016777457216289024,
+      "missing_share_when_network_not_offline": 0.01771039723353889
+    },
+    {
+      "split": "test",
+      "steps": 6861,
+      "missing_share": 0.1209292599000019,
+      "network_offline_steps": 666,
+      "network_offline_share": 0.09707039790118059,
+      "partial_missing_contribution": 0.023858861998821316,
+      "missing_share_when_network_not_offline": 0.026423834087798716
+    }
+  ],
+  "outage_intervals": 97,
+  "longest_network_outage_hours": 31.75,
+  "lag_analysis": {
+    "pairs": 202,
+    "positive_lag_pairs": 22,
+    "zero_lag_pairs": 151,
+    "negative_lag_pairs": 29,
+    "median_gain_over_zero": 0.0,
+    "method": "Training-only weekly residuals; pairwise observed readings; strongest outgoing edge per sensor; Pearson correlation at -60 to +60 minutes in 5-minute steps.",
+    "limitations": "Graph direction is source-to-destination road distance, not independently verified upstream/downstream flow. Lag search is descriptive and has no significance test. Pairs can be reciprocal and are not independent. Missing values are excluded, not forward-filled."
+  },
+  "split_boundary_audit": [
+    {
+      "left": "train",
+      "right": "val",
+      "shared_target_timestamps": 11,
+      "shared_minutes": 55
+    },
+    {
+      "left": "val",
+      "right": "test",
+      "shared_target_timestamps": 11,
+      "shared_minutes": 55
+    }
+  ]
 }

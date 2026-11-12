@@ -109,3 +109,53 @@ def test_boosting_treats_sensor_as_last_column(ds):
     assert x.shape[1] == n_features(groups)
     assert set(np.unique(x[:, -1])) == set(range(N))
     assert np.isfinite(m.predict(ds, "val", (3,))).all()
+
+
+def test_held_week_cannot_change_profiles_even_for_empty_slots(ds):
+    from dataclasses import replace
+
+    week = ds.timestamps.to_period("W-SUN").asi8
+    held = week == week[100]
+    speed = ds.speed.copy()
+    # A slot observed only inside the held week must use an independent fallback.
+    slot = ds.time_of_week[100]
+    speed[(ds.time_of_week == slot) & ~held, 0] = 0
+    baseline = replace(ds, speed=speed)
+    altered = speed.copy()
+    altered[held] = 99
+    changed = replace(ds, speed=altered)
+    rows = held[: ds.train_end]
+    np.testing.assert_allclose(
+        weekly_profile_loo(baseline)[rows], weekly_profile_loo(changed)[rows]
+    )
+    # Sunday origins whose targets fall on Monday exclude the Monday week too.
+    h = 12
+    origins = np.arange(ds.train_end - h)
+    crossing = week[origins] != week[origins + h]
+    origin = origins[crossing][0]
+    target_week = week == week[origin + h]
+    altered = speed.copy()
+    altered[target_week] = 99
+    np.testing.assert_allclose(
+        weekly_profile_loo(baseline, h)[origin],
+        weekly_profile_loo(replace(ds, speed=altered), h)[origin],
+    )
+
+
+def test_held_week_global_fallback_and_insufficient_data(ds):
+    from dataclasses import replace
+
+    weeks = ds.timestamps.to_period("W-SUN").asi8
+    held = weeks == weeks[100]
+    speed = ds.speed.copy()
+    speed[~held, 0] = 0
+    baseline = weekly_profile_loo(replace(ds, speed=speed))
+    speed[held, 0] = 99
+    changed = weekly_profile_loo(replace(ds, speed=speed))
+    np.testing.assert_allclose(
+        baseline[held[: ds.train_end], 0], changed[held[: ds.train_end], 0]
+    )
+    assert np.isfinite(changed).all()
+    speed[~held] = 0
+    with pytest.raises(ValueError, match="outside the held-out week"):
+        weekly_profile_loo(replace(ds, speed=speed))

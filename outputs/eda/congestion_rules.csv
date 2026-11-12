@@ -1,0 +1,3 @@
+rule,flagged_readings,observed_readings,share,sensors_flagged,median_sensor_share,threshold_min_mph,threshold_max_mph
+fixed_40_mph,484477,4613185,0.10502006748049342,207,0.07880926130099228,40.0,40.0
+relative_60pct_p85,422643,4613185,0.09161631280774563,207,0.06992883348804314,21.733333587646484,42.0
