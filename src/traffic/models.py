@@ -51,24 +51,43 @@ def weekly_profile(ds: MetrLA) -> np.ndarray:
     return np.where(counts > 0, profile, sensor_mean).astype(np.float32)
 
 
-def weekly_profile_loo(ds: MetrLA) -> np.ndarray:
-    """(train_end, N) leave-own-week-out profile for each training time step.
+def weekly_profile_loo(ds: MetrLA, horizon: int = 0) -> np.ndarray:
+    """Profile at each training timestamp, excluding the week of timestamp + horizon.
 
-    Each slot of the week occurs once per week, so removing a step's own reading from
-    its slot average is the same as averaging over the other weeks. Training rows use
-    this so the feature never contains the row's own target. Validation and test rows
-    keep the full profile from weekly_profile.
+    A nonzero horizon builds origin features using the target's held-out week.
+    Empty slots fall back to the sensor mean outside that week, then the global
+    observed mean outside that week. A dataset with no other week is rejected.
     """
     sums, counts = _profile_sums(ds)
     speed = ds.speed[: ds.train_end]
     tow = ds.time_of_week[: ds.train_end]
-    observed = speed > 0
-    rest_sum = sums[tow] - np.where(observed, speed, 0)
-    rest_count = counts[tow] - observed
-    sensor_mean = sums.sum(0) / counts.sum(0)
-    with np.errstate(invalid="ignore", divide="ignore"):
-        profile = rest_sum / rest_count
-    return np.where(rest_count > 0, profile, sensor_mean).astype(np.float32)
+    weeks = ds.timestamps.to_period("W-SUN").asi8
+    held = weeks[np.minimum(np.arange(ds.train_end) + horizon, len(weeks) - 1)]
+    result = np.empty_like(speed)
+    for week in np.unique(held):
+        excluded = weeks[: ds.train_end] == week
+        week_sum = np.zeros_like(sums)
+        week_count = np.zeros_like(counts)
+        observed = speed[excluded] > 0
+        np.add.at(week_sum, tow[excluded], np.where(observed, speed[excluded], 0))
+        np.add.at(week_count, tow[excluded], observed)
+        other_sum, other_count = sums - week_sum, counts - week_count
+        if other_count.sum() == 0:
+            raise ValueError(
+                "Weekly cross-fitting needs observations outside the held-out week"
+            )
+        fallback = np.full(ds.n_sensors, other_sum.sum() / other_count.sum())
+        np.divide(
+            other_sum.sum(0),
+            other_count.sum(0),
+            out=fallback,
+            where=other_count.sum(0) > 0,
+        )
+        profile = np.broadcast_to(fallback, sums.shape).copy()
+        np.divide(other_sum, other_count, out=profile, where=other_count > 0)
+        rows = held == week
+        result[rows] = profile[tow[rows]]
+    return result
 
 
 def neighbour_index(ds: MetrLA, k: int = 3) -> tuple[np.ndarray, np.ndarray]:
@@ -115,6 +134,7 @@ def feature_matrix(
     groups: tuple[str, ...],
     *,
     profile_loo: np.ndarray | None = None,
+    origin_profile_loo: np.ndarray | None = None,
 ) -> np.ndarray:
     """One row per (window, sensor), ordered window-major to match y[:, h-1].ravel().
 
@@ -153,7 +173,10 @@ def feature_matrix(
             cols.append(per_window(v))
     if "profile" in groups:
         if split == "train" and profile_loo is not None:
-            at_target, at_origin = profile_loo[o + horizon], profile_loo[o]
+            at_target = profile_loo[o + horizon]
+            at_origin = (
+                origin_profile_loo if origin_profile_loo is not None else profile_loo
+            )[o]
         else:
             at_target = profile[ds.time_of_week[o + horizon]]
             at_origin = profile[ds.time_of_week[o]]
@@ -205,7 +228,13 @@ class FeatureModel:
         self, ds: MetrLA, split: str, horizon: int, max_rows: int | None, seed: int
     ):
         x = feature_matrix(
-            ds, split, horizon, self.profile, self.groups, profile_loo=self.profile_loo
+            ds,
+            split,
+            horizon,
+            self.profile,
+            self.groups,
+            profile_loo=self.profile_loo,
+            origin_profile_loo=self.origin_profile_loo,
         )
         y = targets(ds, split, horizon)
         keep = np.flatnonzero(y > 0)
@@ -217,8 +246,17 @@ class FeatureModel:
 
     def fit(self, ds: MetrLA, horizons: tuple[int, ...]) -> FeatureModel:
         self.profile = weekly_profile(ds)
-        self.profile_loo = weekly_profile_loo(ds) if self.fix_leak else None
+        self.profile_loo = (
+            weekly_profile_loo(ds)
+            if self.fix_leak and "profile" in self.groups
+            else None
+        )
         for h in horizons:
+            self.origin_profile_loo = (
+                weekly_profile_loo(ds, h)
+                if self.fix_leak and "profile" in self.groups
+                else None
+            )
             x, y = self._xy(ds, "train", h, self.max_train_rows, seed=h)
             model = self.make()
             if isinstance(model, HistGradientBoostingRegressor):

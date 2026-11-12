@@ -1,0 +1,13 @@
+{
+  "ridge_alpha": {
+    "lags": 0.1,
+    "+calendar": 0.1,
+    "+profile": 1000.0,
+    "+neighbours": 1000.0
+  },
+  "gb_params": {
+    "max_leaf_nodes": 127,
+    "learning_rate": 0.05,
+    "min_samples_leaf": 400
+  }
+}

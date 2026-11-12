@@ -1,6 +1,6 @@
 # Remaining project work
 
-Status assessed on 12 November 2026 against the local project proposal and assessment brief. This list describes repository evidence, not work that may exist elsewhere.
+Status updated on 12 November 2026 against the local project proposal and assessment brief. This list describes repository evidence, not work that may exist elsewhere.
 
 ## Integrated in commit 1
 
@@ -8,22 +8,13 @@ Saif's `task2-models` commit `ce18f4c1d603e3a2b413ce7233eb59aefbfa7baf` adds mat
 
 The imported implementation changes three files: `src/traffic/models.py`, `scripts/evaluate.py`, and `tests/test_models.py`. It supplies no tuning results, ablation results, updated metrics, or classical-model report section. Existing committed results still describe the old models.
 
-## Finish the classical experiments
+## Classical experiments and EDA
 
-- Check profile exclusion before final runs. The implementation removes the matching slot's own reading, rather than all readings from that calendar week. Its sensor-mean fallback still includes the reading when no other week supplies that slot. Add a sparse-slot regression check and exclude the held-out week from the fallback. Decide whether the origin profile should also exclude the target's whole week to meet the original task literally.
-- Document the existing split boundary overlap: adjacent train/validation windows share target timestamps. Decide whether to preserve the benchmark split with an explicit limitation or use a purged split for a sensitivity experiment. Keep all model comparisons on the same split.
-- Run `uv run scripts/evaluate.py --tune`, then `uv run scripts/evaluate.py`, then `uv run scripts/evaluate.py --ablation`. Retain `tuning.csv`, `best_params.json`, updated `metrics.csv`, and `ablation.csv` as experimental evidence. Test results must not drive model selection.
-- Record that boosting uses settings selected for the profile feature set across all ablations. Tune each feature set separately only if the comparison is intended to measure each set's best validation-selected performance.
-- Check that persistence and historical-average scores remain unchanged. Compare corrected and leaky profile rows and quantify the neighbour contribution at every horizon.
-- Extend `scripts/error_analysis.py` beyond its hard-coded five models, regenerate its outputs, and replace the old profile-leak limitation text when those outputs come from the corrected models. Do not label old prediction files as corrected results.
-- Write the classical-model report section with the settings, feature definitions, ablations, measured changes, and limitations.
+The follow-up implementation excludes each target's whole calendar week from both training profile features and fallback means. Regression tests cover sparse slots, a sensor with no observations outside that week, insufficient data, and forecasts crossing week boundaries. The benchmark split is retained with eleven shared target timestamps per boundary; this is a disclosed limitation, not a claim of fully disjoint evaluation.
 
-## Complete exploratory analysis
+See [classical-model methods and results](classical_models.md) for validation selection, test metrics, feature ablations, profile comparisons, and baseline stability checks. See [exploratory analysis](eda.md) for threshold comparison, outage decomposition, spatial timing results, and figures. Experimental artifacts live in `outputs/results/` and `outputs/eda/`. The condition analysis covers all seven classical models. [Experiment provenance](experiment_notes.md) records source attribution and foundation-model assistance.
 
-- Compare the provisional 40 mph rule with a per-sensor relative threshold, such as 60% of the sensor's training-only 85th-percentile speed. Report flagged readings and sensors, map them, and save the chosen rule in `outputs/eda/summary.json`.
-- Explain simultaneous network outages, long sensor outages, and the higher test missingness. Distinguish observed patterns from unverified explanations.
-- Measure lagged correlations of speed deviations for neighbouring sensors. Check road direction before interpreting any lead as traffic propagation.
-- Write the EDA report section with the selected figures and reasons for the data decisions.
+The selected low-speed rule is 40 mph. The training-only relative rule remains a sensitivity comparison. The lag search does not establish upstream/downstream propagation. Boosting uses settings selected for the profile feature set across ablations; separately tuning every ablation and a purged-split sensitivity study remain optional extensions.
 
 ## Implement the central model comparison
 
@@ -35,7 +26,7 @@ There is currently no neural-model module, training script, neural dependency, c
 
 ## Complete evaluation and submission
 
-- Extend the existing congestion analysis to all final models and the chosen threshold. Add error by time of day and sensor, plus representative prediction-versus-observation traces and failure cases. Account for missing targets and dependence between overlapping windows.
+- Extend the seven-classical-model congestion analysis to the final neural models. Add error by time of day and sensor, plus representative prediction-versus-observation traces and failure cases. Account for missing targets and dependence between overlapping windows.
 - Produce final comparison tables and figures from saved results. State whether spatial information helps, where it helps, and where it fails. Keep published reference scores separate from our own measurements.
 - Write the final report connecting the question, data, cleaning decisions, model iterations, results, and limitations. Existing checkpoint PDFs are not evidence of a finished final report.
 - Create presentation slides and rehearse the explanation of the model changes and evidence. No presentation source is present here.

@@ -16,6 +16,9 @@ from __future__ import annotations
 import argparse
 import itertools
 import json
+import os
+import platform
+from importlib.metadata import version
 import time
 
 import numpy as np
@@ -250,6 +253,25 @@ def main() -> None:
     )
     RESULTS.parent.mkdir(parents=True, exist_ok=True)
     new.to_csv(RESULTS, index=False, float_format="%.4f")
+    metadata = {
+        "python": platform.python_version(),
+        "packages": {
+            k: version(k) for k in ("numpy", "pandas", "scikit-learn", "scipy")
+        },
+        "selected_settings": best,
+        "profile": "target calendar week excluded from both training profile features and fallbacks",
+        "split": "DCRNN benchmark window split; adjacent target periods share 11 timestamps",
+        "boosting_sampling_seeds": "training: horizon step; validation: 100 + horizon step",
+        "boosting_random_state": 0,
+        "max_train_rows_boosting": 1_000_000,
+        "thread_limits": {
+            k: os.environ.get(k) for k in ("OPENBLAS_NUM_THREADS", "OMP_NUM_THREADS")
+        },
+        "models_evaluated": args.models,
+    }
+    (RESULTS.parent / "run_metadata.json").write_text(
+        json.dumps(metadata, indent=2) + "\n"
+    )
 
     test = new[new["split"] == "test"]
     table = test.pivot(index="model", columns="minutes", values=["mae", "rmse", "mape"])

@@ -1,0 +1,19 @@
+{
+  "models": [
+    "persistence",
+    "historical_average"
+  ],
+  "splits": [
+    "val",
+    "test"
+  ],
+  "rows_checked": 12,
+  "metrics": [
+    "mae",
+    "rmse",
+    "mape",
+    "n"
+  ],
+  "atol": 5.1e-05,
+  "result": "unchanged at CSV precision"
+}

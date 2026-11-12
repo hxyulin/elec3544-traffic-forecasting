@@ -1,7 +1,7 @@
 """Compare saved test predictions during low-speed and other observed traffic.
 
 Run ``uv run scripts/error_analysis.py`` after ``scripts/evaluate.py``.
-The 40 mph threshold is provisional, matching the current EDA. Conditions are
+The threshold is selected in the training-only EDA. Conditions are
 defined by observed target speed, so this describes errors retrospectively;
 it does not evaluate a congestion detector. No models are fitted or selected.
 """
@@ -28,10 +28,20 @@ MODELS = {
     "ridge_lags": "Ridge, lags only",
     "ridge": "Ridge",
     "gradient_boosting": "Gradient boosting",
+    "ridge_neighbours": "Ridge + neighbours",
+    "gradient_boosting_neighbours": "Gradient boosting + neighbours",
 }
 
 
 def main() -> None:
+    selection = json.loads((ROOT / "outputs" / "eda" / "summary.json").read_text())[
+        "congestion"
+    ]
+    if (
+        selection["selected_rule"] != "fixed_40_mph"
+        or selection["threshold_mph"] != THRESHOLD_MPH
+    ):
+        raise ValueError("Update condition masks for the selected EDA rule")
     ds = load_metr_la()
     starts = ds.splits["test"]
     horizons = np.array(REPORT_HORIZONS)
@@ -99,7 +109,7 @@ def main() -> None:
         ax.spines[["top", "right"]].set_visible(False)
     axes[0].set_ylabel("MAE (mph)")
     axes[1].legend(fontsize=8)
-    fig.suptitle("Test errors by traffic condition: provisional 40 mph threshold")
+    fig.suptitle("Test errors by traffic condition: training-selected 40 mph threshold")
     fig.tight_layout()
     fig.savefig(OUT / "condition_mae.png", dpi=180)
     plt.close(fig)
@@ -108,12 +118,12 @@ def main() -> None:
         "split": "test",
         "threshold_mph": THRESHOLD_MPH,
         "condition_uses": "observed target speed",
-        "threshold_status": "provisional, inherited from scripts/eda.py",
+        "threshold_status": "selected by training-only EDA; relative rule retained as sensitivity analysis",
         "missing_targets": "zero speeds excluded from all conditions",
-        "verification": "All 15 model/horizon aggregates match metrics.csv to its rounding precision; prediction starts, horizons, shape and finiteness checked; condition counts partition observed targets.",
+        "verification": f"All {len(MODELS) * len(horizons)} model/horizon aggregates match metrics.csv to its rounding precision; prediction starts, horizons, shape and finiteness checked; condition counts partition observed targets.",
         "limitations": [
             "Descriptive analysis of existing predictions; no model selection or tuning.",
-            "Ridge and gradient boosting retain the known training-profile self-inclusion limitation.",
+            "Profile models exclude the target calendar week during training; chronological benchmark splits retain overlapping target timestamps at boundaries.",
             "Sliding windows are dependent; counts are forecast-target pairs, not independent samples.",
         ],
     }
@@ -123,7 +133,9 @@ def main() -> None:
         .round(3)
         .to_string()
     )
-    print("\nVerified all 15 aggregate results against metrics.csv.")
+    print(
+        f"\nVerified all {len(MODELS) * len(horizons)} aggregate results against metrics.csv."
+    )
     print("\nTarget counts by condition:")
     print(
         table[table.model == "persistence"]
