@@ -16,11 +16,11 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from eda_details import analyse
 from matplotlib.colors import LinearSegmentedColormap
 
 from traffic.data import ROOT, STEPS_PER_DAY, load_metr_la
 from traffic.models import weekly_profile
-from eda_details import analyse
 
 OUT = ROOT / "outputs" / "eda"
 BLUE, GRAY, MUTED = "#2a78d6", "#a8a7a2", "#52514e"

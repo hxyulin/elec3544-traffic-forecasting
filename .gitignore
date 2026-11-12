@@ -5,6 +5,10 @@ data/
 outputs/predictions/
 tmp/
 
+# Local tools and macOS metadata
+.ruff_cache/
+.DS_Store
+
 # Private assessed materials and course files stay outside Git.
 report/
 output/

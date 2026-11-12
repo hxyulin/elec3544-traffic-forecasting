@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+
 import matplotlib
 
 matplotlib.use("Agg")
@@ -11,21 +12,9 @@ import numpy as np
 import pandas as pd
 
 from traffic.data import ROOT
+from traffic.reporting import markdown_table, model_label
 
 OUT = ROOT / "outputs" / "results"
-
-
-def markdown(frame):
-    return "\n".join(
-        [
-            "| " + " | ".join(map(str, frame.columns)) + " |",
-            "| " + " | ".join(["---"] * len(frame.columns)) + " |",
-        ]
-        + [
-            "| " + " | ".join(map(str, row)) + " |"
-            for row in frame.itertuples(index=False, name=None)
-        ]
-    )
 
 
 def main():
@@ -92,7 +81,7 @@ def main():
     abtable = abtable.sort_values(["model", "feature_set"])
     fig, ax = plt.subplots(figsize=(8, 4))
     for name, group in test.groupby("model", sort=False):
-        ax.plot(group.minutes, group.mae, marker="o", label=name.replace("_", " "))
+        ax.plot(group.minutes, group.mae, marker="o", label=model_label(name))
     ax.set(
         xlabel="Forecast horizon (minutes)",
         ylabel="Test MAE (mph)",
@@ -114,7 +103,7 @@ def main():
             )
             ax.plot(range(4), g.mae, marker="o", label=f"{minutes} min")
         ax.set(
-            title=model.replace("_", " "),
+            title=model_label(model),
             xticks=range(4),
             xticklabels=order,
             ylabel="Test MAE (mph)",
@@ -163,9 +152,9 @@ Selected settings:
 """
         + json.dumps(params, indent=2)
         + "\n```\n\n## Test results\n\n"
-        + markdown(table)
+        + markdown_table(table)
         + "\n\n![Classical model errors](../outputs/results/classical_mae.png)\n\nPersistence and historical-average results match the saved pre-integration scores on validation and test at all three horizons, for MAE, RMSE, MAPE, and counts, within CSV rounding precision. The check is recorded in `baseline_verification.json`.\n\n## Feature ablations\n\n"
-        + markdown(abtable)
+        + markdown_table(abtable)
         + "\n\n![Feature additions](../outputs/results/ablation_mae.png)\n\n"
         + "\n\n".join(paragraphs)
         + """

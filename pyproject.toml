@@ -17,7 +17,10 @@ neural = [
 ]
 
 [dependency-groups]
-dev = ["pytest>=8"]
+dev = [
+    "pytest>=8",
+    "ruff>=0.17,<0.18",
+]
 
 [build-system]
 requires = ["uv_build>=0.9,<0.14"]
@@ -25,3 +28,14 @@ build-backend = "uv_build"
 
 [tool.uv.build-backend]
 module-name = "traffic"
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "RUF007"]
+
+[tool.ruff.lint.per-file-ignores]
+# Plot scripts choose the backend, and optional tests skip, before later imports.
+"scripts/*.py" = ["E402"]
+"tests/test_neural.py" = ["E402"]

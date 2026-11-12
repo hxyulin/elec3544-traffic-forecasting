@@ -9,6 +9,7 @@ ranks; failure cases are explicitly selected after observing test errors.
 from __future__ import annotations
 
 import json
+
 import matplotlib
 
 matplotlib.use("Agg")
@@ -20,16 +21,12 @@ import pandas as pd
 from traffic.analysis import grouped_errors, load_predictions, verify_partition
 from traffic.data import IN_STEPS, REPORT_HORIZONS, ROOT, load_metr_la
 from traffic.metrics import masked_errors
-from summarize_results import markdown
+from traffic.reporting import MODEL_LABELS as LABELS
+from traffic.reporting import markdown_table
 
 OUT = ROOT / "outputs/error_analysis/detailed"
 FOCUS = ["persistence", "gradient_boosting_neighbours", "gru", "graph_gru"]
-LABELS = {
-    "persistence": "Persistence",
-    "gradient_boosting_neighbours": "Neighbour boosting",
-    "gru": "Temporal GRU",
-    "graph_gru": "Graph GRU",
-}
+
 TRACE = ["persistence", "gradient_boosting_neighbours", "gru", "graph_gru"]
 COLORS = {
     "persistence": "#888888",
@@ -117,92 +114,7 @@ def main():
     for key, frame in frames.items():
         frame.to_csv(OUT / f"{key}_metrics.csv", index=False, float_format="%.8f")
 
-    # Time-of-day axes use target timestamps, not forecast-origin timestamps.
-    fig, axes = plt.subplots(1, 3, figsize=(12, 3.5), sharey=True)
-    for ax, minutes in zip(axes, (15, 30, 60)):
-        for name in FOCUS:
-            part = frames["hour"][
-                (frames["hour"].model == name) & (frames["hour"].minutes == minutes)
-            ]
-            ax.plot(part.hour, part.mae, label=LABELS[name])
-        ax.set(
-            title=f"{minutes}-minute horizon",
-            xlabel="Target hour (dataset clock)",
-            xticks=[0, 6, 12, 18, 23],
-        )
-        ax.grid(alpha=0.2)
-    axes[0].set_ylabel("MAE (mph)")
-    axes[-1].legend(fontsize=8)
-    fig.tight_layout()
-    fig.savefig(OUT / "hour_mae.png", dpi=160)
-    plt.close(fig)
-
-    sensor = frames["sensor"]
-    sensor60 = sensor[sensor.minutes == 60]
-    spatial = sensor60.pivot(index="sensor", columns="model", values="mae").reindex(
-        ds.sensor_ids
-    )
-    gain = spatial.gru - spatial.graph_gru
-    fig, axes = plt.subplots(1, 3, figsize=(12, 4), sharex=True, sharey=True)
-    values = [spatial.gradient_boosting_neighbours, spatial.graph_gru, gain]
-    vmax = float(max(values[0].max(), values[1].max()))
-    gmax = max(float(np.abs(gain).max()), 0.001)
-    for ax, v, title in zip(
-        axes,
-        values,
-        ["Neighbour boosting MAE", "Graph GRU MAE", "Temporal minus graph MAE"],
-    ):
-        difference = title.startswith("Temporal")
-        pts = ax.scatter(
-            ds.locations.longitude,
-            ds.locations.latitude,
-            c=v,
-            cmap="RdBu" if difference else "viridis",
-            s=20,
-            vmin=-gmax if difference else 0,
-            vmax=gmax if difference else vmax,
-        )
-        ax.set(title=title, xlabel="Longitude")
-        ax.xaxis.set_major_locator(plt.MaxNLocator(4))
-        ax.set_aspect(1 / np.cos(np.deg2rad(ds.locations.latitude.mean())))
-        fig.colorbar(pts, ax=ax, label="mph", shrink=0.7)
-    axes[0].set_ylabel("Latitude")
-    fig.suptitle("60-minute forecasts; positive difference favours graph")
-    fig.tight_layout()
-    fig.savefig(OUT / "sensor_mae.png", dpi=160)
-    plt.close(fig)
-
-    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
-    for ax, key, title, labels in zip(
-        axes,
-        ["input_missing", "speed_change"],
-        [
-            "Missing readings in the 12-step input",
-            "Change from observed origin to target",
-        ],
-        [INPUT_NAMES, CHANGE_NAMES],
-    ):
-        frame = frames[key]
-        frame = frame[frame.minutes == 60]
-        for offset, name in enumerate(FOCUS):
-            part = frame[frame.model == name].set_index(key).reindex(labels)
-            ax.bar(
-                np.arange(len(labels)) + (offset - 1.5) * 0.2,
-                part.mae,
-                width=0.2,
-                label=LABELS[name],
-            )
-        ax.set(
-            title=title,
-            xticks=np.arange(len(labels)),
-            xticklabels=labels,
-            ylabel="60-minute MAE (mph)",
-        )
-        ax.tick_params(axis="x", rotation=20)
-    axes[-1].legend(fontsize=8)
-    fig.tight_layout()
-    fig.savefig(OUT / "failure_regimes.png", dpi=160)
-    plt.close(fig)
+    plot_subgroups(ds, frames)
 
     # These sensor ranks are fixed from training data, before inspecting test errors.
     train = ds.speed[: ds.train_end]
@@ -406,6 +318,99 @@ def main():
     print(json.dumps(verification, indent=2))
 
 
+def plot_subgroups(ds, frames):
+    # Time-of-day axes use target timestamps, not forecast-origin timestamps.
+    fig, axes = plt.subplots(1, 3, figsize=(12, 3.5), sharey=True)
+    for ax, minutes in zip(axes, (15, 30, 60)):
+        for name in FOCUS:
+            part = frames["hour"][
+                (frames["hour"].model == name) & (frames["hour"].minutes == minutes)
+            ]
+            ax.plot(part.hour, part.mae, label=LABELS[name])
+        ax.set(
+            title=f"{minutes}-minute horizon",
+            xlabel="Target hour (dataset clock)",
+            xticks=[0, 6, 12, 18, 23],
+        )
+        ax.grid(alpha=0.2)
+    axes[0].set_ylabel("MAE (mph)")
+    axes[-1].legend(fontsize=8)
+    fig.tight_layout()
+    fig.savefig(OUT / "hour_mae.png", dpi=160)
+    plt.close(fig)
+
+    sensor = frames["sensor"]
+    sensor60 = sensor[sensor.minutes == 60]
+    spatial = sensor60.pivot(index="sensor", columns="model", values="mae").reindex(
+        ds.sensor_ids
+    )
+    gain = spatial.gru - spatial.graph_gru
+    fig, axes = plt.subplots(1, 3, figsize=(12, 4), sharex=True, sharey=True)
+    values = [spatial.gradient_boosting_neighbours, spatial.graph_gru, gain]
+    vmax = float(max(values[0].max(), values[1].max()))
+    gmax = max(float(np.abs(gain).max()), 0.001)
+    for ax, v, title in zip(
+        axes,
+        values,
+        [
+            "Gradient boosting\n+ neighbours MAE",
+            "Graph GRU MAE",
+            "Temporal minus graph MAE",
+        ],
+    ):
+        difference = title.startswith("Temporal")
+        pts = ax.scatter(
+            ds.locations.longitude,
+            ds.locations.latitude,
+            c=v,
+            cmap="RdBu" if difference else "viridis",
+            s=20,
+            vmin=-gmax if difference else 0,
+            vmax=gmax if difference else vmax,
+        )
+        ax.set(title=title, xlabel="Longitude")
+        ax.xaxis.set_major_locator(plt.MaxNLocator(4))
+        ax.set_aspect(1 / np.cos(np.deg2rad(ds.locations.latitude.mean())))
+        fig.colorbar(pts, ax=ax, label="mph", shrink=0.7)
+    axes[0].set_ylabel("Latitude")
+    fig.suptitle("60-minute forecasts; positive difference favours graph")
+    fig.tight_layout()
+    fig.savefig(OUT / "sensor_mae.png", dpi=160)
+    plt.close(fig)
+
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4))
+    for ax, key, title, labels in zip(
+        axes,
+        ["input_missing", "speed_change"],
+        [
+            "Missing readings in the 12-step input",
+            "Change from observed origin to target",
+        ],
+        [INPUT_NAMES, CHANGE_NAMES],
+    ):
+        frame = frames[key]
+        frame = frame[frame.minutes == 60]
+        for offset, name in enumerate(FOCUS):
+            part = frame[frame.model == name].set_index(key).reindex(labels)
+            ax.bar(
+                np.arange(len(labels)) + (offset - 1.5) * 0.2,
+                part.mae,
+                width=0.2,
+                label=LABELS[name],
+            )
+        ax.set(
+            title=title,
+            xticks=np.arange(len(labels)),
+            xticklabels=labels,
+            ylabel="60-minute MAE (mph)",
+        )
+        ax.tick_params(axis="x", rotation=20)
+    axes[-1].legend(fontsize=8)
+    fig.tight_layout()
+    fig.savefig(OUT / "failure_regimes.png", dpi=160)
+    plt.close(fig)
+
+
 def write_report(frames, manifest, verification):
     hour = frames["hour"]
     sensor = frames["sensor"]
@@ -441,7 +446,7 @@ def write_report(frames, manifest, verification):
             .round(3)
         )
         t.columns = [LABELS[n] for n in t.columns]
-        return markdown(t.reset_index())
+        return markdown_table(t.reset_index())
 
     availability = missing[
         (missing.model == "graph_gru") & (missing.minutes == 60)
@@ -469,6 +474,9 @@ def write_report(frames, manifest, verification):
                 **{LABELS[n]: round(c["prediction"][n], 2) for n in TRACE},
             }
         )
+    missing_case_count = sum(
+        c["input_missing_count"] == IN_STEPS for c in manifest["failure_cases"]
+    )
     report = f"""# Final forecast error analysis
 
 We analyse the saved test predictions for all ten models without fitting or selecting models. Every prediction file is checked against the test starts, horizons, expected shape, and finite values. All {verification["aggregate_checks"]} model/horizon aggregates reproduce `metrics.csv`. Each of {verification["partition_checks"]} subgroup partitions reproduces the pooled count, MAE, RMSE, and MAPE from its observed targets. Partition checks use unrounded scores; CSV tables round to eight decimal places. Full tables are in `outputs/error_analysis/detailed/`.
@@ -485,7 +493,7 @@ The graph model's 60-minute MAE is highest at target hour {int(peak.hour):02d}:0
 
 At 60 minutes, graph filtering improves sensor MAE relative to the temporal GRU for {int((gains > 0).sum())} of {len(gains)} sensors and worsens it for {int((gains < 0).sum())}. The median sensor gain is {gains.median():.4f} mph. These counts give each sensor equal weight, whereas aggregate metrics weight observed target pairs. They do not establish statistical significance or independent replications. Sensor percentiles below are unweighted across sensors and are not pooled errors.
 
-{markdown(pd.DataFrame(overview))}
+{markdown_table(pd.DataFrame(overview))}
 
 The maps align sensors by ID with their dataset coordinates. The first two maps share a colour scale. The difference map has a symmetric scale; positive values favour the graph model. Per-sensor observed counts are available in `sensor_metrics.csv`, so errors on sensors with little data can be identified.
 
@@ -507,7 +515,7 @@ Speed-change groups compare the observed raw origin speed with the observed targ
 
 Observed 60-minute target counts, common to all models:
 
-{markdown(counts)}
+{markdown_table(counts)}
 
 ![Missing inputs and speed-change errors](../outputs/error_analysis/detailed/failure_regimes.png)
 
@@ -523,9 +531,9 @@ The plots show 15- and 60-minute forecasts at their target timestamps. Every plo
 
 We deliberately select three 60-minute cases: the largest graph-model absolute error; the largest remaining excess absolute error over neighbour boosting; and the largest remaining excess error over the temporal GRU. After each choice, target times within two hours are excluded across all sensors for later choices. This limits repeated displays of one event but does not make cases independent. Selections use observed test errors for illustration only. They do not support estimates of how often these failures occur and do not change any model or setting.
 
-{markdown(pd.DataFrame(failure_rows))}
+{markdown_table(pd.DataFrame(failure_rows))}
 
-The largest graph-error case and the largest gap to the temporal model both have all twelve input readings missing. Their missing raw origins are not treated as zero speeds by the models: the pipeline carries earlier observations forward. This is a reason to report input availability alongside aggregate errors. It does not identify whether the observed target reflects an incident, recovery, or measurement problem.
+{missing_case_count} of the {len(manifest["failure_cases"])} selected failure cases have all twelve input readings missing. Their missing raw origins are not treated as zero speeds by the models: the pipeline carries earlier observations forward. This is a reason to report input availability alongside aggregate errors. It does not identify whether the observed target reflects an incident, recovery, or measurement problem.
 
 Each panel spans up to three hours either side of the selected target, limited by test coverage. The vertical line and circle mark the selected target. The temporal GRU is shown explicitly because the final case selects a failure relative to it. Grey shading marks missing target readings. A sharp change or missing history is an observed association, not evidence of an incident or operational cause.
 

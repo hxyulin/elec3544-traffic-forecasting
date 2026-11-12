@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from itertools import pairwise
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
 from traffic.data import IN_STEPS, OUT_STEPS
@@ -214,7 +216,7 @@ def analyse(ds, out):
     plt.close(fig)
     split_audit = []
     splits = list(ds.splits)
-    for left, right in zip(splits, splits[1:]):
+    for left, right in pairwise(splits):
         left_end = int(ds.splits[left][-1]) + IN_STEPS + OUT_STEPS
         right_start = int(ds.splits[right][0]) + IN_STEPS
         split_audit.append(

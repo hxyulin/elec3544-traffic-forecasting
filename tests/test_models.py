@@ -84,12 +84,11 @@ def test_neighbour_features_shape_and_fallback(ds):
     assert x.shape == (len(ds.splits["val"]) * N, 7)
     assert n_features(("lags", "calendar", "profile", "neighbours", "sensor")) == 28
     o = ds.splits["val"][0] + IN_STEPS - 1
-    row = lambda sensor: x[sensor]
-    assert row(0)[0] == ds.filled[o, 1]  # strongest neighbour of sensor 0 is sensor 1
+    assert x[0, 0] == ds.filled[o, 1]  # strongest neighbour of sensor 0 is sensor 1
     assert (
-        row(4)[1] == ds.filled[o, 4]
+        x[4, 1] == ds.filled[o, 4]
     )  # no second neighbour: falls back to its own speed
-    assert row(0)[3] == ds.filled[o, 1] - ds.filled[o - 3, 1]
+    assert x[0, 3] == ds.filled[o, 1] - ds.filled[o - 3, 1]
 
 
 def test_ridge_trains_with_every_feature_group(ds):

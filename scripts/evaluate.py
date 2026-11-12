@@ -18,8 +18,8 @@ import itertools
 import json
 import os
 import platform
-from importlib.metadata import version
 import time
+from importlib.metadata import version
 
 import numpy as np
 import pandas as pd
@@ -63,14 +63,21 @@ def load_best() -> dict:
 def build_models(best: dict) -> dict:
     alphas = best.get("ridge_alpha", {})
     gb = best.get("gb_params")
-    a = lambda s: alphas.get(s, RIDGE_ALPHA)
+
+    def alpha_for(feature_set):
+        return alphas.get(feature_set, RIDGE_ALPHA)
+
     return {
         "persistence": Persistence,
         "historical_average": HistoricalAverage,
-        "ridge_lags": lambda: ridge("ridge_lags", FEATURE_SETS["lags"], a("lags")),
-        "ridge": lambda: ridge("ridge", FEATURE_SETS["+profile"], a("+profile")),
+        "ridge_lags": lambda: ridge(
+            "ridge_lags", FEATURE_SETS["lags"], alpha_for("lags")
+        ),
+        "ridge": lambda: ridge(
+            "ridge", FEATURE_SETS["+profile"], alpha_for("+profile")
+        ),
         "ridge_neighbours": lambda: ridge(
-            "ridge_neighbours", FEATURE_SETS["+neighbours"], a("+neighbours")
+            "ridge_neighbours", FEATURE_SETS["+neighbours"], alpha_for("+neighbours")
         ),
         "gradient_boosting": lambda: gradient_boosting(params=gb),
         "gradient_boosting_neighbours": lambda: gradient_boosting(

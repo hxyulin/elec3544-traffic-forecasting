@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+
 import matplotlib
 
 matplotlib.use("Agg")
@@ -11,7 +12,7 @@ import numpy as np
 import pandas as pd
 
 from traffic.data import ROOT
-from summarize_results import markdown
+from traffic.reporting import markdown_table, model_label
 
 OUT = ROOT / "outputs" / "neural"
 GRAPH = OUT / "graph_gru"
@@ -48,7 +49,7 @@ def main():
     ):
         for name in [n for n in names if n != "graph_gru_no_graph"]:
             group = data[data.model == name]
-            ax.plot(group.minutes, group.mae, marker="o", label=name.replace("_", " "))
+            ax.plot(group.minutes, group.mae, marker="o", label=model_label(name))
         ax.set(
             title=title,
             xlabel="Forecast horizon (minutes)",
@@ -115,7 +116,7 @@ def main():
         deltas = ref.mae - g.mae
         comparisons.append(
             "MAE differences ("
-            + name.replace("_", " ")
+            + model_label(name)
             + " minus graph GRU) are "
             + ", ".join(f"{deltas.loc[h]:.3f}" for h in (15, 30, 60))
             + " mph at 15, 30, and 60 minutes. Positive values favour the graph model."
@@ -157,7 +158,7 @@ All variants share seed {metadata["training_args"]["seed"]}, a fixed sample of {
 
 Graph-model validation trials:
 
-{markdown(tuning.round(4))}
+{markdown_table(tuning.round(4))}
 
 The graph model selects learning rate {metadata["selected_learning_rate"]} at epoch {metadata["best_epoch"]}, with validation MAE {metadata["selection_val_mae"]:.4f} mph. The disabled control selects {no_graph_meta["selected_learning_rate"]} at epoch {no_graph_meta["best_epoch"]}. Test scores are used after selection for comparison, not for choosing settings.
 
@@ -165,7 +166,7 @@ The graph model selects learning rate {metadata["selected_learning_rate"]} at ep
 
 ## Test results
 
-{markdown(table)}
+{markdown_table(table)}
 
 {" ".join(comparisons)}
 
@@ -173,7 +174,7 @@ The graph model selects learning rate {metadata["selected_learning_rate"]} at ep
 
 Low-speed targets are observed speeds below the training-selected 40 mph threshold:
 
-{markdown(ctable)}
+{markdown_table(ctable)}
 
 The separately trained disabled graph duplicates the temporal reference within numerical tolerance, so the plot shows the temporal curve once. The table retains both records to make the ablation explicit. All models share the benchmark windows and missing-target masks. Classical neighbour boosting receives additional sensor/profile features, so its comparison with neural models is between implemented systems. The graph-versus-disabled comparison controls the neural architecture and training budget.
 

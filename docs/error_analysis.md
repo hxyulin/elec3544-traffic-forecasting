@@ -17,7 +17,7 @@ At 60 minutes, graph filtering improves sensor MAE relative to the temporal GRU 
 | Model | Sensor MAE median | Sensor MAE 90th percentile | Sensor MAE maximum |
 | --- | --- | --- | --- |
 | Persistence | 5.282 | 8.206 | 11.121 |
-| Neighbour boosting | 3.386 | 6.027 | 9.713 |
+| Gradient boosting + neighbours | 3.386 | 6.027 | 9.713 |
 | Temporal GRU | 4.105 | 7.012 | 10.145 |
 | Graph GRU | 4.049 | 7.032 | 10.271 |
 
@@ -31,7 +31,7 @@ Input availability counts missing readings in the sensor's own twelve-step histo
 
 60-minute MAE by input availability:
 
-| input_missing | Persistence | Neighbour boosting | Temporal GRU | Graph GRU |
+| input_missing | Persistence | Gradient boosting + neighbours | Temporal GRU | Graph GRU |
 | --- | --- | --- | --- | --- |
 | 0 missing | 5.309 | 3.725 | 4.348 | 4.317 |
 | 1–3 missing | 5.277 | 3.916 | 4.442 | 4.523 |
@@ -42,7 +42,7 @@ Fully observed inputs account for 92.63% of observed 60-minute targets. In that 
 
 Speed-change groups compare the observed raw origin speed with the observed target. Drops of at least 10 mph and rises of at least 10 mph are separated from changes strictly within 10 mph. A missing raw origin forms its own group, even though models can use filled inputs. The drop/rise definitions mechanically imply at least 10 mph persistence error when the origin is observed. The groups use future observed targets and therefore describe forecast errors retrospectively; they are not available categories at forecast time and do not assess a detector.
 
-| speed_change | Persistence | Neighbour boosting | Temporal GRU | Graph GRU |
+| speed_change | Persistence | Gradient boosting + neighbours | Temporal GRU | Graph GRU |
 | --- | --- | --- | --- | --- |
 | within 10 mph | 2.495 | 2.554 | 2.395 | 2.421 |
 | drop ≥10 mph | 23.741 | 14.572 | 22.738 | 22.477 |
@@ -72,13 +72,13 @@ The plots show 15- and 60-minute forecasts at their target timestamps. Every plo
 
 We deliberately select three 60-minute cases: the largest graph-model absolute error; the largest remaining excess absolute error over neighbour boosting; and the largest remaining excess error over the temporal GRU. After each choice, target times within two hours are excluded across all sensors for later choices. This limits repeated displays of one event but does not make cases independent. Selections use observed test errors for illustration only. They do not support estimates of how often these failures occur and do not change any model or setting.
 
-| Case | Sensor | Target | Observed mph | Missing inputs | Persistence | Neighbour boosting | Temporal GRU | Graph GRU |
+| Case | Sensor | Target | Observed mph | Missing inputs | Persistence | Gradient boosting + neighbours | Temporal GRU | Graph GRU |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | largest_graph_error | 771673 | 2012-06-27 13:00:00 | 1.0 | 12 | 70.0 | 41.07 | 67.69 | 68.93 |
 | largest_gap_to_boosting | 763995 | 2012-06-08 15:15:00 | 9.89 | 0 | 56.62 | 12.15 | 63.7 | 65.58 |
 | largest_gap_to_temporal | 773939 | 2012-06-17 20:25:00 | 68.56 | 12 | 12.0 | 60.96 | 61.02 | 16.73 |
 
-The largest graph-error case and the largest gap to the temporal model both have all twelve input readings missing. Their missing raw origins are not treated as zero speeds by the models: the pipeline carries earlier observations forward. This is a reason to report input availability alongside aggregate errors. It does not identify whether the observed target reflects an incident, recovery, or measurement problem.
+2 of the 3 selected failure cases have all twelve input readings missing. Their missing raw origins are not treated as zero speeds by the models: the pipeline carries earlier observations forward. This is a reason to report input availability alongside aggregate errors. It does not identify whether the observed target reflects an incident, recovery, or measurement problem.
 
 Each panel spans up to three hours either side of the selected target, limited by test coverage. The vertical line and circle mark the selected target. The temporal GRU is shown explicitly because the final case selects a failure relative to it. Grey shading marks missing target readings. A sharp change or missing history is an observed association, not evidence of an incident or operational cause.
 

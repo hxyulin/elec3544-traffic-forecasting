@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+
 import matplotlib
 
 matplotlib.use("Agg")
@@ -10,7 +11,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from traffic.data import ROOT
-from summarize_results import markdown
+from traffic.reporting import markdown_table, model_label
 
 OUT = ROOT / "outputs" / "neural"
 
@@ -44,7 +45,7 @@ def main():
         axes, [test, low], ["All observed targets", "Observed targets below 40 mph"]
     ):
         for name, part in data.groupby("model", sort=False):
-            ax.plot(part.minutes, part.mae, marker="o", label=name.replace("_", " "))
+            ax.plot(part.minutes, part.mae, marker="o", label=model_label(name))
         ax.set(
             title=title,
             xlabel="Forecast horizon (minutes)",
@@ -90,7 +91,7 @@ We train with Adam and masked MAE, excluding zero targets. The loss is divided b
 
 The seed is {metadata["training_args"]["seed"]}. Batch size is {metadata["training_args"]["batch_size"]}; training stops after {metadata["training_args"]["patience"]} epochs without improvement, subject to a {metadata["training_args"]["epochs"]}-epoch cap per trial. Every epoch is evaluated on all observed validation targets. We select the learning rate and checkpoint by mean validation MAE across the three horizons. Test data is scored after selection. Both trials use the same initialized weights and training sample.
 
-{markdown(tuning.round(4))}
+{markdown_table(tuning.round(4))}
 
 The selected learning rate is {metadata["selected_learning_rate"]}, at epoch {metadata["best_epoch"]}. Its mean validation MAE is {metadata["selection_val_mae"]:.4f} mph. Training used {metadata["device"]} and PyTorch {metadata["torch"]}; full settings and data hash are saved in `outputs/neural/run_metadata.json`. The selected CPU state dictionary, configuration, normalization, horizons, and sensor order are saved in `outputs/neural/gru.pt`.
 
@@ -98,7 +99,7 @@ The selected learning rate is {metadata["selected_learning_rate"]}, at epoch {me
 
 ## Test comparison
 
-{markdown(table)}
+{markdown_table(table)}
 
 {" ".join(statements)}
 
@@ -106,7 +107,7 @@ The selected learning rate is {metadata["selected_learning_rate"]}, at epoch {me
 
 Low-speed MAE uses the training-selected 40 mph threshold and excludes missing targets:
 
-{markdown(ctable)}
+{markdown_table(ctable)}
 
 The saved GRU predictions use the existing `(window, horizon, sensor)` format, window starts, and horizon steps. The condition-analysis script checks their alignment and reproduces aggregate metrics before reporting these subsets.
 
