@@ -37,7 +37,7 @@ def masked_mae(pred: torch.Tensor, true: torch.Tensor) -> torch.Tensor:
 class NeuralData:
     """Gather (window, sensor) rows in window-major order on the selected device."""
 
-    def __init__(self, ds: MetrLA, device: str):
+    def __init__(self, ds: MetrLA, device: str, graph_mode: str = "none"):
         self.mean, self.std = ds.normalizer()
         self.n_sensors = ds.n_sensors
         self.splits = ds.splits
@@ -63,6 +63,23 @@ class NeuralData:
             ],
             axis=2,
         ).astype(np.float32)
+        if graph_mode not in ("none", "road", "identity"):
+            raise ValueError(f"Unknown graph mode: {graph_mode}")
+        if graph_mode != "none":
+            local = features[:, :, :2]
+            signals = []
+            if graph_mode == "road":
+                for support in graph_supports(ds.adjacency):
+                    aggregate = support @ local.transpose(1, 0, 2).reshape(
+                        ds.n_sensors, -1
+                    )
+                    aggregate = aggregate.reshape(
+                        ds.n_sensors, len(local), 2
+                    ).transpose(1, 0, 2)
+                    signals.append(aggregate - local)
+            else:
+                signals = [np.zeros_like(local), np.zeros_like(local)]
+            features = np.concatenate([features, *signals], axis=2)
         self.features = torch.tensor(features, device=device)
         self.speed = torch.tensor(ds.speed, device=device)
         self.offsets = torch.arange(IN_STEPS, device=device)
@@ -94,3 +111,49 @@ def predict(
         x, _ = data.batch(split, np.arange(start, end))
         output[start:end] = (model(x) * data.std + data.mean).cpu().numpy()
     return output.reshape(-1, data.n_sensors, len(REPORT_HORIZONS)).transpose(0, 2, 1)
+
+
+def graph_supports(adjacency: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Row-normalized incoming and outgoing road weights, excluding self-loops.
+
+    A[i,j] is a road link from i to j. Empty rows fall back to the identity,
+    so their neighbour-minus-local signal is zero. The local path is separate.
+    """
+    if adjacency.ndim != 2 or adjacency.shape[0] != adjacency.shape[1]:
+        raise ValueError("Adjacency must be square")
+    if not np.isfinite(adjacency).all() or (adjacency < 0).any():
+        raise ValueError("Adjacency must contain finite nonnegative weights")
+    weights = adjacency.astype(np.float32).copy()
+    np.fill_diagonal(weights, 0)
+    supports = []
+    for a in (weights.T, weights):
+        total = a.sum(1)
+        support = a / np.where(total > 0, total, 1)[:, None]
+        isolated = np.flatnonzero(total == 0)
+        support[isolated, isolated] = 1
+        supports.append(support)
+    return tuple(supports)
+
+
+class GraphSensorGRU(SensorGRU):
+    """Learn one-hop incoming/outgoing filtering of speed and observation flags.
+
+    Packed inputs hold seven local channels, then two incoming differences and
+    two outgoing differences. The persistence anchor always uses the local speed.
+    Zero graph signals reduce the model to the temporal GRU, including gradients.
+    """
+
+    def __init__(self, hidden_size: int = 32):
+        super().__init__(hidden_size)
+        self.incoming = nn.Linear(2, 2, bias=False)
+        self.outgoing = nn.Linear(2, 2, bias=False)
+        nn.init.zeros_(self.incoming.weight)
+        nn.init.zeros_(self.outgoing.weight)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        spatial = (
+            x[:, :, :2] + self.incoming(x[:, :, 7:9]) + self.outgoing(x[:, :, 9:11])
+        )
+        filtered = torch.cat([spatial, x[:, :, 2:7]], dim=2)
+        _, hidden = self.gru(filtered)
+        return x[:, -1, 0, None] + self.head(hidden[-1])

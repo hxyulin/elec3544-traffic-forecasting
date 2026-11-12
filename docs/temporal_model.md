@@ -49,7 +49,7 @@ These results measure one temporal architecture under one seed and a limited lea
 
 The benchmark target periods retain eleven overlapping timestamps at each split boundary. The training normalizer includes the full benchmark training period. The fixed sample and device-dependent floating-point arithmetic also limit reproducibility across hardware; repeated seeds have not been run.
 
-The next experiment should add explicit graph aggregation while keeping the temporal architecture, input channels, training sample, seed, optimizer, selection budget, and evaluation protocol comparable. Include a disabled-graph ablation to isolate the spatial contribution. Neural-model error by sensor, time of day, and representative trajectories also remains to be completed.
+The [graph comparison](graph_model.md) adds learned incoming and outgoing graph filtering under matched temporal settings, with a separately trained identity-graph control. Neural-model error by sensor, time of day, and representative trajectories also remains to be completed.
 
 ## Reproduction
 

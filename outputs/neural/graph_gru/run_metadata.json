@@ -1,0 +1,39 @@
+{
+  "model": "graph_gru",
+  "graph_mode": "road",
+  "adjacency_sha256": "b7a7d2f06dad90ad8dd6aee96fc388c075ffe974652828d97a5328abc2e1d857",
+  "torch": "2.15.0",
+  "python": "3.14.8",
+  "device": "cpu",
+  "parameters": 4043,
+  "selected_learning_rate": 0.003,
+  "best_epoch": 21,
+  "selection_val_mae": 3.3051963322285545,
+  "normalizer": {
+    "mean": 58.58150100708008,
+    "std": 12.826537132263184
+  },
+  "training_args": {
+    "model": "graph_gru",
+    "device": "cpu",
+    "learning_rates": [
+      0.001,
+      0.003
+    ],
+    "hidden_size": 32,
+    "epochs": 25,
+    "patience": 4,
+    "train_rows": 1000000,
+    "batch_size": 2048,
+    "seed": 42,
+    "evaluate_only": false
+  },
+  "data_sha256": "d051326da99e88c4e136b34e5f1b9500a4ab6fadd27d0d7f02cfe20d9b2e7d89",
+  "checkpoint": "outputs/neural/graph_gru/graph_gru.pt",
+  "limitations": [
+    "One seed; device-specific numerical differences are possible.",
+    "Fixed training sample of window/sensor rows, not every training row.",
+    "Benchmark target periods overlap by 11 timestamps at boundaries.",
+    "Direct outputs only at 15, 30 and 60 minutes; no recursive future inputs."
+  ]
+}

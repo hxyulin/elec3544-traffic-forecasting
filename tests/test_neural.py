@@ -97,3 +97,94 @@ def test_sensor_sequences_are_independent_and_checkpoint_reloads(tmp_path):
     restored = SensorGRU(8)
     restored.load_state_dict(torch.load(checkpoint, weights_only=True))
     torch.testing.assert_close(before, restored(x))
+
+
+def test_graph_supports_preserve_direction_and_isolated_nodes():
+    from traffic.neural import graph_supports
+
+    a = np.array([[1.0, 2.0, 0.0], [0.0, 1.0, 4.0], [0.0, 0.0, 1.0]])
+    incoming, outgoing = graph_supports(a)
+    np.testing.assert_array_equal(incoming, [[1, 0, 0], [1, 0, 0], [0, 1, 0]])
+    np.testing.assert_array_equal(outgoing, [[0, 1, 0], [0, 0, 1], [0, 0, 1]])
+    np.testing.assert_allclose(incoming.sum(1), 1)
+    np.testing.assert_allclose(outgoing.sum(1), 1)
+    # Self-loop magnitudes must not affect neighbour messages.
+    np.fill_diagonal(a, 99)
+    for original, changed in zip((incoming, outgoing), graph_supports(a)):
+        np.testing.assert_array_equal(original, changed)
+    with pytest.raises(ValueError, match="nonnegative"):
+        graph_supports(np.array([[0.0, -1.0], [1.0, 0.0]]))
+
+
+def test_graph_signals_use_only_linked_sensors_and_current_timestamps(ds):
+    adjacency = np.array([[1, 1, 0], [0, 1, 1], [0, 0, 1]], dtype=np.float32)
+    data = NeuralData(replace(ds, adjacency=adjacency), "cpu", "road")
+    base = NeuralData(ds, "cpu")
+    rows = np.arange(3)
+    x, y = data.batch("test", rows)
+    own, _ = base.batch("test", rows)
+    torch.testing.assert_close(x[:, :, :7], own)
+    # Sensor 0 has no incoming link, and its outgoing link reaches sensor 1.
+    torch.testing.assert_close(x[0, :, 7:9], torch.zeros_like(x[0, :, 7:9]))
+    torch.testing.assert_close(x[0, :, 9:11], own[1, :, :2] - own[0, :, :2])
+    # Sensor 2 has no outgoing link. Its incoming link is from sensor 1.
+    torch.testing.assert_close(x[2, :, 9:11], torch.zeros_like(x[2, :, 9:11]))
+    torch.testing.assert_close(x[2, :, 7:9], own[1, :, :2] - own[2, :, :2])
+    np.testing.assert_array_equal(y, base.batch("test", rows)[1])
+    first_target = ds.splits["test"][1] + IN_STEPS
+    speed, filled = ds.speed.copy(), ds.filled.copy()
+    speed[first_target:] = 1000
+    filled[first_target:] = 1000
+    changed = NeuralData(
+        replace(ds, adjacency=adjacency, speed=speed, filled=filled), "cpu", "road"
+    )
+    torch.testing.assert_close(
+        data.batch("test", rows + 3)[0], changed.batch("test", rows + 3)[0]
+    )
+
+
+def test_disabled_graph_matches_temporal_predictions_gradients_and_updates(ds):
+    from traffic.neural import GraphSensorGRU
+
+    torch.manual_seed(0)
+    base = SensorGRU(8)
+    torch.nn.init.normal_(base.head.weight)
+    graph = GraphSensorGRU(8)
+    graph.load_state_dict(base.state_dict(), strict=False)
+    normal = NeuralData(ds, "cpu")
+    disabled = NeuralData(ds, "cpu", "identity")
+    rows = np.arange(15)
+    x, y = normal.batch("train", rows)
+    packed, _ = disabled.batch("train", rows)
+    optimizers = [torch.optim.Adam(m.parameters(), lr=0.003) for m in (base, graph)]
+    for _ in range(2):
+        torch.testing.assert_close(base(x), graph(packed))
+        for m, inputs, opt in zip((base, graph), (x, packed), optimizers):
+            opt.zero_grad()
+            masked_mae(m(inputs), y).backward()
+            torch.nn.utils.clip_grad_norm_(m.parameters(), 1.0)
+        for name, p in base.named_parameters():
+            torch.testing.assert_close(
+                p.grad, dict(graph.named_parameters())[name].grad
+            )
+        assert torch.count_nonzero(graph.incoming.weight.grad) == 0
+        assert torch.count_nonzero(graph.outgoing.weight.grad) == 0
+        for opt in optimizers:
+            opt.step()
+    torch.testing.assert_close(base(x), graph(packed))
+
+
+def test_graph_model_can_learn_from_connected_inputs_without_changing_anchor(ds):
+    from traffic.neural import GraphSensorGRU
+
+    graph = GraphSensorGRU(8)
+    data = NeuralData(ds, "cpu", "identity")
+    x, y = data.batch("train", np.arange(10))
+    x = x.clone()
+    x[:, :, 7:] = 1
+    # A zero head stays at local persistence even with nonzero graph filters.
+    torch.nn.init.ones_(graph.incoming.weight)
+    torch.testing.assert_close(graph(x), x[:, -1, 0, None].expand(-1, 3))
+    torch.nn.init.normal_(graph.head.weight)
+    masked_mae(graph(x), y).backward()
+    assert torch.count_nonzero(graph.incoming.weight.grad) > 0

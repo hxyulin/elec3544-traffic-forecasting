@@ -24,6 +24,8 @@ OUT = ROOT / "outputs" / "error_analysis"
 THRESHOLD_MPH = 40
 LABELS = {
     "gru": "Temporal GRU",
+    "graph_gru": "Graph GRU",
+    "graph_gru_no_graph": "Graph GRU, graph disabled",
     "persistence": "Persistence",
     "historical_average": "Historical average",
     "ridge_lags": "Ridge, lags only",
