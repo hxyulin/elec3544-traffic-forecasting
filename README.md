@@ -1,6 +1,6 @@
 # Spatiotemporal traffic speed forecasting
 
-Group 30, ELEC3544. This repository forecasts METR-LA traffic speeds 15, 30 and 60 minutes ahead. It covers weeks 1–3 of the proposal: data pipeline, exploratory analysis, baselines and classical models.
+Group 30, ELEC3544. This repository forecasts METR-LA traffic speeds 15, 30 and 60 minutes ahead. It contains the data pipeline, exploratory analysis, baselines and classical models, including validation tuning and spatial feature ablations. Neural models remain to be implemented. See [remaining work](docs/tasks.md).
 
 ## Run
 
@@ -13,7 +13,7 @@ uv run scripts/eda.py    # figures and summary in outputs/eda/
 uv run scripts/evaluate.py   # metrics in outputs/results/metrics.csv
 ```
 
-`evaluate.py` takes model names to rerun only some models, for example `uv run scripts/evaluate.py ridge`. The full run takes under a minute on a laptop.
+`evaluate.py` takes model names to rerun only some models, for example `uv run scripts/evaluate.py ridge`. Tuning and ablation repeat model training and can take substantially longer than a single evaluation.
 
 ## Layout
 
@@ -48,7 +48,24 @@ These follow DCRNN (Li et al., 2018), so our numbers compare directly with publi
 
 The ridge and gradient-boosting models train one model per horizon, pooled across all sensors.
 
-## Results (test set)
+## Integrated classical-model work
+
+Integrated from Saif's [`task2-models` commit ce18f4c](https://github.com/saifho/elec3544-traffic-forecast/commit/ce18f4c1d603e3a2b413ce7233eb59aefbfa7baf). The upstream `main` only contains the original baseline.
+
+Training profile features now exclude their own reading from the matching weekly slot. Validation and test features use the full training profile. Neighbour features use the three strongest links after symmetrising the directed graph by maximum weight, their latest speeds and 15-minute changes, and a weighted average over all neighbours. Missing neighbours fall back to the sensor itself.
+
+```sh
+uv run scripts/evaluate.py --tune      # tuning.csv and best_params.json
+uv run scripts/evaluate.py            # seven models, metrics and predictions
+uv run scripts/evaluate.py --ablation # ablation.csv
+uv run scripts/error_analysis.py      # current five-model condition analysis
+```
+
+Tuning chooses ridge alpha separately for each feature set. Boosting settings are selected with the profile feature set and reused for the other ablations. All choices use validation MAE. No new full-dataset tuning or evaluation was run during integration.
+
+## Previous results (test set)
+
+These tables and committed analysis outputs predate the integration. They have not been regenerated with the corrected profile or neighbour features.
 
 | Model | MAE 15 min | MAE 30 min | MAE 60 min | RMSE 15 min | RMSE 30 min | RMSE 60 min | MAPE 15 min | MAPE 30 min | MAPE 60 min |
 |---|---|---|---|---|---|---|---|---|---|
@@ -88,8 +105,6 @@ boosting reduces low-speed MAE by 17.2% relative to persistence. Its MAE is stil
 support reporting traffic conditions separately in the final model comparison.
 Overlapping windows mean the forecast-target pairs are not independent samples.
 
-Ridge with profile features and gradient boosting remain preliminary: their
-training profile includes each training row's own target. The correction is
-listed in `docs/tasks.md`. This analysis does not fit or select any models.
+These saved ridge and gradient-boosting results used the old profile, which included each training row's own target. The integrated code corrects the matching-slot self-inclusion, but the tables and analysis must be regenerated. See `docs/tasks.md` for remaining validation checks. This analysis does not fit or select any models.
 
 ![Test MAE by observed target speed](outputs/error_analysis/condition_mae.png)
