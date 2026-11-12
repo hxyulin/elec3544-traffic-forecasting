@@ -20,21 +20,10 @@ import pandas as pd
 from traffic.analysis import load_predictions
 from traffic.data import IN_STEPS, REPORT_HORIZONS, ROOT, load_metr_la
 from traffic.metrics import masked_errors
+from traffic.reporting import model_label
 
 OUT = ROOT / "outputs" / "error_analysis"
 THRESHOLD_MPH = 40
-LABELS = {
-    "gru": "Temporal GRU",
-    "graph_gru": "Graph GRU",
-    "graph_gru_no_graph": "Graph GRU, graph disabled",
-    "persistence": "Persistence",
-    "historical_average": "Historical average",
-    "ridge_lags": "Ridge, lags only",
-    "ridge": "Ridge",
-    "gradient_boosting": "Gradient boosting",
-    "ridge_neighbours": "Ridge + neighbours",
-    "gradient_boosting_neighbours": "Gradient boosting + neighbours",
-}
 
 
 def main() -> None:
@@ -51,10 +40,7 @@ def main() -> None:
     horizons = np.array(REPORT_HORIZONS)
     truth = ds.speed[starts[:, None] + IN_STEPS + horizons[None, :] - 1]
     recorded = pd.read_csv(ROOT / "outputs" / "results" / "metrics.csv")
-    models = {
-        name: LABELS.get(name, name.replace("_", " "))
-        for name in recorded["model"].unique()
-    }
+    models = {name: model_label(name) for name in recorded["model"].unique()}
     rows = []
     for model in models:
         pred = load_predictions(

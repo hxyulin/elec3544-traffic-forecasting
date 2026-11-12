@@ -4,3 +4,7 @@ __pycache__/
 data/
 outputs/predictions/
 tmp/
+
+# Local tools and macOS metadata
+.ruff_cache/
+.DS_Store

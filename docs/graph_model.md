@@ -45,7 +45,7 @@ The graph model selects learning rate 0.003 at epoch 21, with validation MAE 3.3
 | graph_gru_no_graph | 3.006 | 3.596 | 4.424 | 5.891 | 7.201 | 8.858 |
 | graph_gru | 3.0 | 3.584 | 4.408 | 5.848 | 7.141 | 8.815 |
 
-MAE differences (graph gru no graph minus graph GRU) are 0.005, 0.012, 0.015 mph at 15, 30, and 60 minutes. Positive values favour the graph model. MAE differences (gradient boosting neighbours minus graph GRU) are -0.114, -0.253, -0.638 mph at 15, 30, and 60 minutes. Positive values favour the graph model. On low-speed targets, the corresponding disabled-control minus graph differences are 0.051, 0.022, 0.079 mph.
+MAE differences (Graph GRU (disabled) minus graph GRU) are 0.005, 0.012, 0.015 mph at 15, 30, and 60 minutes. Positive values favour the graph model. MAE differences (Gradient boosting + neighbours minus graph GRU) are -0.114, -0.253, -0.638 mph at 15, 30, and 60 minutes. Positive values favour the graph model. On low-speed targets, the corresponding disabled-control minus graph differences are 0.051, 0.022, 0.079 mph.
 
 ![Graph, temporal and classical comparison](../outputs/neural/graph_gru/comparison.png)
 

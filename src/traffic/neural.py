@@ -1,4 +1,4 @@
-"""Shared per-sensor GRU and indexed batches without materialising every window."""
+"""Temporal and graph GRUs with indexed batches instead of materialised windows."""
 
 from __future__ import annotations
 

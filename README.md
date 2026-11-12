@@ -1,142 +1,122 @@
 # Spatiotemporal traffic speed forecasting
 
-Group 30, ELEC3544. This repository forecasts METR-LA traffic speeds 15, 30 and 60 minutes ahead. It contains the data pipeline, exploratory analysis, baselines and classical models, including validation tuning and spatial feature ablations. A shared per-sensor GRU provides the temporal neural baseline. A GRU with learned graph filtering tests the spatial contribution against a separately trained disabled-graph control. See [remaining work](docs/tasks.md).
+Group 30, ELEC3544. We forecast METR-LA traffic speeds 15, 30 and 60 minutes ahead and test whether road-network information improves forecasts. The project compares persistence and historical averages, ridge regression, gradient boosting, a temporal GRU, and a GRU with learned graph filtering.
 
-## Run
+## Results
 
-Requires [uv](https://docs.astral.sh/uv/). The first run downloads the dataset (13 MB) to `data/raw/` and checks its SHA-256.
+Test-set MAE and RMSE in mph. Lower is better. Settings and neural checkpoints were selected on validation MAE; test scores describe the selected models. Values below come from [`metrics.csv`](outputs/results/metrics.csv).
 
-```sh
-uv sync
-uv run pytest            # data alignment, split and metric checks
-uv run scripts/eda.py    # figures and summary in outputs/eda/
-uv run scripts/evaluate.py   # metrics in outputs/results/metrics.csv
-```
+| Model | MAE 15 min | MAE 30 min | MAE 60 min | RMSE 15 min | RMSE 30 min | RMSE 60 min |
+|---|---:|---:|---:|---:|---:|---:|
+| Persistence | 3.498 | 4.205 | 5.378 | 6.416 | 8.049 | 10.340 |
+| Historical average | 4.186 | 4.186 | 4.186 | 7.851 | 7.851 | 7.851 |
+| Ridge (lags only) | 3.380 | 4.206 | 5.556 | 6.102 | 7.597 | 9.524 |
+| Ridge | 3.212 | 3.679 | 4.081 | 5.693 | 6.611 | 7.356 |
+| Ridge + neighbours | 3.228 | 3.693 | 4.088 | 5.626 | 6.548 | 7.316 |
+| Gradient boosting | 2.958 | 3.400 | 3.818 | 5.402 | 6.323 | 7.125 |
+| Gradient boosting + neighbours | **2.887** | **3.332** | **3.771** | **5.164** | **6.111** | **6.986** |
+| Temporal GRU | 3.006 | 3.596 | 4.424 | 5.891 | 7.201 | 8.858 |
+| Graph GRU | 3.000 | 3.584 | 4.408 | 5.848 | 7.141 | 8.815 |
 
-`evaluate.py` takes model names to rerun only some models, for example `uv run scripts/evaluate.py ridge`. Tuning and ablation repeat model training and can take substantially longer than a single evaluation.
+The separately trained disabled-graph control reproduces every temporal-GRU test prediction exactly, so its duplicate row is omitted. It remains in the saved metrics and [control verification](outputs/neural/graph_gru/control_verification.json).
 
-## Layout
+**Gradient boosting + neighbours is the strongest measured model.** It reduces persistence MAE by 17.5%, 20.8% and 29.9% at the three horizons. Adding neighbour features improves boosting MAE at every horizon. For ridge, neighbour features slightly worsen MAE while improving RMSE. See the [feature ablations](docs/classical_models.md).
 
-- `src/traffic/data.py` loads the data, builds the sensor graph, and defines splits and windows.
-- `src/traffic/metrics.py` holds MAE, RMSE and MAPE with missing targets masked out.
-- `src/traffic/models.py` holds the baselines and the ridge and gradient-boosting models.
-- `scripts/` holds the runnable analysis. `outputs/predictions/` (not committed) holds test predictions for error analysis.
+The graph GRU improves temporal-GRU MAE by only 0.005, 0.012 and 0.015 mph. At 60 minutes it helps 118 of 207 sensors and worsens 89. This one-seed experiment shows a small measured spatial gain; it does not establish statistical significance or the best graph architecture. Classical boosting also receives sensor identity and weekly-profile features that the neural models do not receive.
 
-## Data decisions
+![Graph and temporal models compared with persistence and gradient boosting + neighbours](outputs/neural/graph_gru/comparison.png)
 
-These use DCRNN (Li et al., 2018) benchmark conventions. Adjacent split target periods share eleven timestamps (55 minutes); results do not represent fully disjoint target periods.
+## Congestion and missing inputs
 
-- **Source.** `metr_la.h5`: 34,272 five-minute steps from 1 March to 27 June 2012, 207 sensors. It comes from the Torch Spatiotemporal mirror of the DCRNN files.
-- **Windows.** Each window has 12 input steps (1 hour) and 12 target steps. We report steps 3, 6 and 12, which are 15, 30 and 60 minutes.
-- **Splits.** Windows are split 70/10/20 in time order: 23,974 train, 3,425 validation and 6,850 test windows. These match DCRNN exactly.
-- **Missing values.** A speed of 0 means the sensor did not report. This covers 8.1% of readings overall and 12.1% in the test period.
-  - Targets: zeros are excluded from training and from every metric.
-  - Inputs: we carry the last observed value forward. This uses only past data. A gap at the very start of the series takes the sensor's training mean instead.
-- **Graph.** The weight between two sensors is `exp(-(d/σ)^2)`, where `d` is road distance and `σ` is the standard deviation of all distances. Weights below 0.1 are set to 0. The resulting graph is directed and has 1,515 edges besides self-loops.
-- **Normalisation.** `MetrLA.normalizer()` returns the mean and standard deviation of observed training speeds, for z-scoring inputs to the neural models. Ridge standardises its features; boosting uses the feature values directly.
-- **Leakage.** The weekly profile, fill values and normaliser use only the training period. `tests/test_data.py` checks this for the profile.
+Overall error hides larger errors on observed targets below 40 mph. This low-speed definition was chosen using training-only EDA; it is not ground-truth congestion or a congestion detector.
 
-## Models so far
+| Model | MAE 15 min | MAE 30 min | MAE 60 min |
+|---|---:|---:|---:|
+| Persistence | 7.336 | 9.673 | 13.421 |
+| Gradient boosting + neighbours | 6.849 | 8.784 | 10.776 |
+| Temporal GRU | 7.472 | 10.101 | 14.597 |
+| Graph GRU | 7.421 | 10.080 | 14.518 |
 
-| Model | Inputs |
-|---|---|
-| Graph GRU | incoming and outgoing road-weighted speed/observation signals, followed by the shared GRU |
-| Temporal GRU | own sensor history, observation flags, and calendar inputs; shared weights |
-| Persistence | last observed speed |
-| Historical average | mean training speed for that sensor and 5-minute slot of the week |
-| Ridge, lags only | 12 lagged speeds, share of the window that was missing |
-| Ridge | lags, calendar (time of day, day of week, weekend) at the target time, weekly-profile speed |
-| Ridge / gradient boosting + neighbours | corresponding model inputs plus neighbour speeds, changes and weighted mean |
-| Gradient boosting | ridge inputs plus sensor ID as a category; 1M sampled training rows; early stopping on validation |
+Both neural models beat persistence overall but have higher MAE on low-speed targets at every horizon. At 60 minutes, fully observed input histories account for 92.63% of observed targets. Graph filtering improves temporal-GRU MAE by 0.031 mph in that group, but worsens it by 0.081, 0.266 and 0.210 mph when 1–3, 4–11 or all twelve input readings are missing. These groups differ in sensor and traffic composition; the comparison is descriptive.
 
-The ridge and gradient-boosting models train one model per horizon, pooled across all sensors.
+The [error-analysis report](docs/error_analysis.md) includes errors by sensor and target hour, missing inputs, speed changes, representative traces and selected failure cases. All 30 model/horizon aggregates and 150 subgroup partitions are checked against pooled metrics. Counts are observed forecast-target pairs, not independent samples.
 
-## Integrated classical-model work
+## Reproduce the results
 
-Integrated from Saif's [`task2-models` commit ce18f4c](https://github.com/saifho/elec3544-traffic-forecast/commit/ce18f4c1d603e3a2b413ce7233eb59aefbfa7baf). The upstream `main` only contains the original baseline.
+Requires Python 3.12 or later and [uv](https://docs.astral.sh/uv/). The first data-loading command downloads the 13 MB dataset and checks its archive SHA-256. The `neural` extra adds PyTorch; the classical models and analysis also run without it.
 
-Training profile features exclude the target's whole calendar week from both origin and target estimates and their fallback means, including forecasts that cross week boundaries. Validation and test features use the full training profile. Neighbour features use the three strongest links after symmetrising the directed graph by maximum weight, their latest speeds and 15-minute changes, and a weighted average over all neighbours. Missing neighbours fall back to the sensor itself.
-
-```sh
-uv run scripts/evaluate.py --tune      # tuning.csv and best_params.json
-uv run scripts/evaluate.py            # seven models, metrics and predictions
-uv run scripts/evaluate.py --ablation # ablation.csv
-uv run scripts/error_analysis.py      # all recorded models by traffic condition
-uv run scripts/summarize_results.py   # baseline checks, report and figures
-```
-
-Tuning chooses ridge alpha separately for each feature set. Boosting settings are selected with the profile feature set and reused for the other ablations. All choices use validation MAE. The follow-up runs tune on validation and regenerate evaluation, ablations, and traffic-condition results. Original metrics are retained in `outputs/results/previous_metrics.csv`.
-
-## Exploratory analysis
-
-The training-only comparison retains 40 mph as a common low-speed definition. It flags 10.50% of observed training readings, compared with 9.16% for the sensor-relative rule. Both are descriptive definitions. Whole-network outages account for about 86% of the increase in test missingness. Most selected neighbour pairs have their strongest residual correlation at zero lag; the analysis does not establish directional traffic propagation.
-
-See [EDA methods, findings and figures](docs/eda.md), [classical-model methods and results](docs/classical_models.md), and [experiment provenance](docs/experiment_notes.md).
-
-## Classical test results
-
-MAE in mph, after calendar-week profile exclusion and validation selection:
-
-| Model | 15 min | 30 min | 60 min |
-|---|---|---|---|
-| gradient_boosting | 2.958 | 3.4 | 3.818 |
-| gradient_boosting_neighbours | 2.887 | 3.332 | 3.771 |
-| historical_average | 4.186 | 4.186 | 4.186 |
-| persistence | 3.498 | 4.205 | 5.378 |
-| ridge | 3.212 | 3.679 | 4.081 |
-| ridge_lags | 3.38 | 4.206 | 5.556 |
-| ridge_neighbours | 3.228 | 3.693 | 4.088 |
-
-Full MAE, RMSE, MAPE, tuning trials, and ablations are saved in `outputs/results/`. The report explains the shared boosting settings and split-boundary limitation.
-
-![Classical test errors](outputs/results/classical_mae.png)
-
-## Errors by traffic condition
-
-Run `uv run scripts/error_analysis.py` after evaluation. It checks prediction alignment, shape, finiteness, and every recorded model/horizon aggregate against `metrics.csv` before grouping by observed target speed. This is retrospective error analysis, not congestion detection. Missing targets are excluded, and overlapping windows produce dependent forecast-target pairs.
-
-![Test errors by observed target speed](outputs/error_analysis/condition_mae.png)
-
-## Temporal neural baseline
-
-Install the optional neural dependencies to train or restore the shared per-sensor GRU:
+### Set up and validate
 
 ```sh
 uv sync --extra neural
-uv run --extra neural scripts/train_gru.py --device cpu
-uv run --extra neural scripts/train_gru.py --device cpu --evaluate-only
-uv run scripts/error_analysis.py
-uv run scripts/summarize_neural.py
+uv run ruff check src scripts tests
+uv run ruff format --check src scripts tests
+uv run --extra neural pytest
 ```
 
-Training compares two learning rates using the same initialized weights and one million sampled window/sensor rows. Validation selects the checkpoint and learning rate; test evaluation follows selection. The checkpoint, settings, validation histories, and learning curves are in `outputs/neural/`. The evaluate-only command restores the saved weights and checks the data hash and sensor order. Run `uv run --extra neural pytest` to include the neural tests; they skip when PyTorch is absent.
+Neural tests skip when PyTorch is absent. Ruff settings and development dependencies are defined in `pyproject.toml` and locked in `uv.lock`.
 
-See the [temporal-model report](docs/temporal_model.md) for methods, measured results, and limits. Classical and GRU inputs differ, so the comparison is between implemented systems. The [graph-model report](docs/graph_model.md) compares temporal and graph variants under matched settings.
+### Restore the recorded models and analyse predictions
 
-![Temporal baseline compared with classical models](outputs/neural/comparison.png)
-
-## Graph comparison
+The selected neural checkpoints are committed. Classical models refit using the committed validation-selected settings. Predictions are generated locally and remain ignored by git.
 
 ```sh
-uv run --extra neural scripts/train_gru.py --model graph_gru --device cpu
-uv run --extra neural scripts/train_gru.py --model graph_gru_no_graph --device cpu
+uv run scripts/evaluate.py
+uv run --extra neural scripts/train_gru.py --device cpu --evaluate-only
 uv run --extra neural scripts/train_gru.py --model graph_gru --device cpu --evaluate-only
 uv run --extra neural scripts/train_gru.py --model graph_gru_no_graph --device cpu --evaluate-only
-uv run scripts/error_analysis.py
-uv run scripts/summarize_graph.py
-```
-
-The graph filter keeps incoming and outgoing road links separate, removes self-loops from neighbour aggregation, and row-normalizes weights. Isolated rows fall back to local values. Both variants use the same temporal architecture, initial GRU/head parameters, training sample, seed, two learning rates, and validation budget. The disabled graph is trained separately with identity supports. Each checkpoint checks the data and adjacency hashes on restoration.
-
-See [graph methods, ablation and results](docs/graph_model.md). The core model comparison is implemented; the detailed error analysis is complete, and final report/presentation assembly remains.
-
-![Graph model and matched temporal control](outputs/neural/graph_gru/comparison.png)
-
-## Detailed error analysis
-
-```sh
 uv run scripts/error_analysis.py
 uv run scripts/detailed_error_analysis.py
 ```
 
-The [error-analysis report](docs/error_analysis.md) covers all ten models by sensor, target hour, weekday/weekend, input availability, and speed change. Every subgroup partition is checked against pooled metrics. Representative sensors use training-only congestion ranks; failure examples are explicitly selected from test errors for illustration. CSV tables, trace values, selection rules, and figures are in `outputs/error_analysis/detailed/`. Counts are observed forecast-target pairs, with missing targets excluded.
+Checkpoint restoration verifies the speed-data hash, sensor order, horizons and normalizer. Graph checkpoints also verify the adjacency hash. CPU restoration reproduced every saved neural prediction exactly in the recorded environment; other devices can introduce numerical differences.
+
+### Retrain or regenerate reports
+
+```sh
+# Repeat validation selection and feature ablations.
+uv run scripts/evaluate.py --tune
+uv run scripts/evaluate.py
+uv run scripts/evaluate.py --ablation
+
+# Retrain the temporal, graph and disabled-graph variants.
+uv run --extra neural scripts/train_gru.py --device cpu
+uv run --extra neural scripts/train_gru.py --model graph_gru --device cpu
+uv run --extra neural scripts/train_gru.py --model graph_gru_no_graph --device cpu
+
+# Regenerate EDA, analysis, report sections and figures.
+uv run scripts/eda.py
+uv run scripts/error_analysis.py
+uv run scripts/detailed_error_analysis.py
+uv run scripts/summarize_results.py
+uv run scripts/summarize_neural.py
+uv run scripts/summarize_graph.py
+```
+
+`evaluate.py` accepts a subset of model names, for example `uv run scripts/evaluate.py ridge`. Tuning and ablation repeat training. Neural variants share seed 42, a fixed sample of one million training window/sensor rows, batch size 2048, learning rates 0.001 and 0.003, and a 25-epoch cap with patience four. Histories, settings, package versions and checkpoints are saved under `outputs/`.
+
+## Data and evaluation decisions
+
+- METR-LA contains 34,272 five-minute steps from 207 sensors, from 1 March to 27 June 2012. Each window uses one hour of history and twelve future steps; we report steps 3, 6 and 12.
+- The benchmark splits contain 23,974 training, 3,425 validation and 6,850 test windows in time order. Adjacent target periods overlap by eleven timestamps, or 55 minutes. These are not fully disjoint target periods.
+- Zero speeds denote missing readings and are excluded from training targets and every score. Inputs carry the last observation forward. Initial gaps use sensor means from the training period. Normalization uses observed training speeds.
+- Training profile features exclude the target's whole calendar week from both origin/target estimates and fallback means. Validation and test use the full training profile.
+- The road graph has 1,515 directed non-self edges. Classical neighbour features symmetrize weights; the graph GRU keeps incoming and outgoing directions separate, removes self-loops from neighbour aggregation, and row-normalizes weights. Its local path remains separate.
+- The graph model uses a one-hop learned input filter with local recurrent states. It does not reproduce the full DCRNN architecture. One neural seed, sampled training rows and overlapping windows limit the conclusions. Repeated seeds and purged-split sensitivity studies remain extensions.
+
+## Repository guide
+
+| Path | Contents |
+|---|---|
+| `src/traffic/` | Data pipeline, metrics, classical/neural models, analysis checks and reporting helpers |
+| `scripts/` | Evaluation, training, EDA and report-generation commands |
+| `tests/` | Alignment, missing-target, profile-exclusion and graph-control checks |
+| `outputs/results/` | Metrics, validation selection, feature ablations and previous baseline scores |
+| `outputs/neural/` | Selected checkpoints, training histories, settings and comparison figures |
+| `outputs/error_analysis/` | Condition and subgroup scores, trace values and case-selection records |
+| `outputs/eda/` | Training-data summaries, outage audits, congestion rules and sensor relationships |
+| `docs/` | Methods, results, interpretation, provenance and remaining submission work |
+
+Read the [EDA](docs/eda.md), [classical-model](docs/classical_models.md), [temporal-model](docs/temporal_model.md), [graph-model](docs/graph_model.md) and [error-analysis](docs/error_analysis.md) sections for the full experimental account. The model sequence and planned error analysis are complete; the [remaining work](docs/tasks.md) is final report/presentation assembly and member contribution statements.
+
+The classical-model extension originated in Saif's [task2-models commit](https://github.com/saifho/elec3544-traffic-forecast/commit/ce18f4c1d603e3a2b413ce7233eb59aefbfa7baf). Source attribution and foundation-model assistance are recorded in [experiment provenance](docs/experiment_notes.md) and git history.
