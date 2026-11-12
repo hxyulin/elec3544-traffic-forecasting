@@ -28,6 +28,7 @@ def fit_forecaster(
     objective="mae",
     rows_per_epoch=1_000_000,
     batch_size=2048,
+    record_prediction=False,
 ):
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.001, weight_decay=1e-4)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
@@ -36,6 +37,8 @@ def fit_forecaster(
     rng = np.random.default_rng(seed)
     best, best_epoch, history = np.inf, 0, []
     for epoch in range(1, epochs + 1):
+        if data.device == "cuda":
+            torch.cuda.synchronize()
         started = time.perf_counter()
         model.train()
         selected = rng.choice(
@@ -61,6 +64,8 @@ def fit_forecaster(
         score = float(np.mean([r["mae"] for r in measured]))
         if not np.isfinite(score):
             raise ValueError("Non-finite validation score")
+        if data.device == "cuda":
+            torch.cuda.synchronize()
         history.append(
             dict(
                 epoch=epoch,
@@ -79,6 +84,8 @@ def fit_forecaster(
         )
         if score < best:
             best, best_epoch = score, epoch
+            if record_prediction:
+                np.save(directory / "best_prediction.npy", predict)
             torch.save(
                 dict(
                     state_dict={

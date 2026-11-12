@@ -1,0 +1,13 @@
+{
+  "protocol_frozen_mtime_utc": "2026-11-12T15:32:25.126952+00:00",
+  "protocol_sha256": "f2d0ec74d6ee969000cd6fd39c48310cb82799686863cb7d3ffe2244273816ed",
+  "session": "traffic-replication-20261112",
+  "start_utc": "2026-11-12T15:32:34Z",
+  "exit_status": 0,
+  "outer_exit_status": 0,
+  "completed_runs": 12,
+  "sequential": true,
+  "per_run_timeout_seconds": 900,
+  "overall_timeout_seconds": 10800,
+  "end_utc": "2026-11-12T15:41:12Z"
+}

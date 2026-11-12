@@ -1,0 +1,20 @@
+ seed  variant horizon      mae     rmse  best_epoch  epochs  epoch_cap
+   42    local   macro 3.003454 6.226325          48      50       True
+   42      one   macro 2.919702 5.991053          48      50       True
+   42      two   macro 2.907729 5.957794          48      50       True
+   42 geometry   macro 2.919594 5.955881          48      50       True
+   43    local   macro 3.010091 6.226112          50      50       True
+   43      one   macro 2.932822 6.002451          49      50       True
+   43      two   macro 2.913691 5.951187          46      50       True
+   43 geometry   macro 2.920002 5.956530          46      50       True
+   44    local   macro 3.005413 6.250196          49      50       True
+   44      one   macro 2.924433 5.995009          49      50       True
+   44      two   macro 2.910883 5.941279          50      50       True
+   44 geometry   macro 2.903549 5.945353          49      50       True
+ seed   comparison horizon       mae      rmse
+   42      two-one   macro -0.011973 -0.033259
+   43      two-one   macro -0.019131 -0.051264
+   44      two-one   macro -0.013550 -0.053730
+   42 geometry-two   macro  0.011865 -0.001913
+   43 geometry-two   macro  0.006311  0.005343
+   44 geometry-two   macro -0.007334  0.004074

@@ -1,0 +1,14 @@
+local epoch 1: validation MAE 3.6919, 0.4s
+local epoch 2: validation MAE 3.6126, 0.1s
+local epoch 3: validation MAE 3.5847, 0.1s
+one epoch 1: validation MAE 3.7014, 0.3s
+one epoch 2: validation MAE 3.5876, 0.1s
+one epoch 3: validation MAE 3.5528, 0.1s
+two epoch 1: validation MAE 3.6799, 0.3s
+two epoch 2: validation MAE 3.5877, 0.1s
+two epoch 3: validation MAE 3.5322, 0.1s
+geometry epoch 1: validation MAE 3.6986, 0.3s
+geometry epoch 2: validation MAE 3.5733, 0.1s
+geometry epoch 3: validation MAE 3.5453, 0.1s
+PILOT_COMPLETED
+EXIT_STATUS=0
