@@ -1,0 +1,34 @@
+{
+  "models": [
+    "persistence",
+    "historical_average",
+    "ridge_lags",
+    "ridge",
+    "ridge_neighbours",
+    "gradient_boosting",
+    "gradient_boosting_neighbours",
+    "graph_gru",
+    "graph_gru_no_graph",
+    "gru"
+  ],
+  "horizons_minutes": [
+    15,
+    30,
+    60
+  ],
+  "aggregate_checks": 30,
+  "partition_checks": 150,
+  "partitions": [
+    "sensor",
+    "hour",
+    "day_type",
+    "input_missing",
+    "speed_change"
+  ],
+  "counts": "observed forecast-target pairs",
+  "time_grouping": "target timestamp as provided by dataset; no timezone conversion",
+  "speed_change_definition": "Target minus observed raw origin speed; drop \u2264\u221210, rise \u226510 mph. Missing origins form a separate group.",
+  "empty_groups": "n=0 and NaN metrics",
+  "csv_precision": "8 decimal places; partition checks use unrounded scores",
+  "recomposition": "Counts, count-weighted MAE/MAPE and RMSE reconstructed from count-weighted squared subgroup RMSE match pooled results within 1e-9 mph/percentage points."
+}

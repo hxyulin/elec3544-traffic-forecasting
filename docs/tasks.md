@@ -22,12 +22,12 @@ The selected low-speed rule is 40 mph. The training-only relative rule remains a
 2. The GRU with learned graph filtering and its separately trained identity-graph control are implemented. See [graph methods and results](graph_model.md) for directed supports, self-loop handling, normalization, matched training, multi-horizon errors, and limits.
 3. The temporal-versus-graph comparison includes MAE and RMSE at 15, 30, and 60 minutes, low-speed errors, and classical neighbour boosting. Checkpoints, histories, and control verification are saved under `outputs/neural/`.
 
-The core planned model sequence is now implemented. Repeated seeds, a larger search, deeper graph propagation, and purged-split sensitivity experiments remain optional extensions. Prioritize the remaining error analysis and final submission materials before widening the model search.
+The core planned model sequence is now implemented. Repeated seeds, a larger search, deeper graph propagation, and purged-split sensitivity experiments remain optional extensions. The planned error analysis is complete. Prioritize final submission materials before widening the model search.
 
 ## Complete evaluation and submission
 
-- The congestion analysis covers the temporal and graph models. Add error by time of day and sensor, plus representative prediction-versus-observation traces and failure cases. Account for missing targets and dependence between overlapping windows.
-- Produce final comparison tables and figures from saved results. State whether spatial information helps, where it helps, and where it fails. Keep published reference scores separate from our own measurements.
+- Detailed error analysis is complete. See [error analysis](error_analysis.md) for sensor and target-time scores, input availability, speed changes, training-rank-selected traces, and explicit post-hoc failure cases. All groups exclude missing targets and retain observed counts; dependence between windows and sensors is documented.
+- Comparison tables, ablations, and error-analysis figures are saved. Select the final report/presentation figures and state where spatial inputs help and fail. Keep published reference scores separate from our own measurements.
 - Write the final report connecting the question, data, cleaning decisions, model iterations, results, and limitations. Existing checkpoint PDFs are not evidence of a finished final report.
 - Create presentation slides and rehearse the explanation of the model changes and evidence. No presentation source is present here.
 - Record each member's contributions and foundation-model use. Preserve Saif's source attribution in the integration commit.
