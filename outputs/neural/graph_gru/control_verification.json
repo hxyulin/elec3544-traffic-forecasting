@@ -1,0 +1,6 @@
+{
+  "control": "separately trained identity-graph model",
+  "max_metric_difference_csv": 0.0,
+  "validation_trials_and_histories": "match temporal run within 1e-6 mph, excluding wall times",
+  "tolerance_metrics": 0.00011
+}

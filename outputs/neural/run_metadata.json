@@ -1,5 +1,7 @@
 {
-  "model": "shared per-sensor GRU with persistence residual",
+  "model": "gru",
+  "graph_mode": "none",
+  "adjacency_sha256": "b7a7d2f06dad90ad8dd6aee96fc388c075ffe974652828d97a5328abc2e1d857",
   "torch": "2.15.0",
   "python": "3.14.8",
   "device": "cpu",

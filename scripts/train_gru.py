@@ -2,6 +2,8 @@
 
     uv run --extra neural scripts/train_gru.py
     uv run --extra neural scripts/train_gru.py --evaluate-only
+    uv run --extra neural scripts/train_gru.py --model graph_gru --device cpu
+    uv run --extra neural scripts/train_gru.py --model graph_gru_no_graph --device cpu
 
 The fixed training sample is shared by all trials. Only validation scores select
 settings and epochs; test predictions are produced once after selection.
@@ -25,15 +27,15 @@ import torch
 
 from traffic.data import REPORT_HORIZONS, ROOT, load_metr_la
 from traffic.metrics import errors_by_horizon
-from traffic.neural import NeuralData, SensorGRU, masked_mae, predict
+from traffic.neural import GraphSensorGRU, NeuralData, SensorGRU, masked_mae, predict
 
 OUT = ROOT / "outputs" / "neural"
-CHECKPOINT = OUT / "gru.pt"
 
 
 def train_trial(data, truth, learning_rate, args):
     torch.manual_seed(args.seed)
-    model = SensorGRU(args.hidden_size).to(data.device)
+    model_type = SensorGRU if args.model == "gru" else GraphSensorGRU
+    model = model_type(args.hidden_size).to(data.device)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     # Fixed rows, then independently shuffled each epoch. Missing horizons stay masked.
     rng = np.random.default_rng(args.seed)
@@ -91,6 +93,9 @@ def train_trial(data, truth, learning_rate, args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
+        "--model", choices=["gru", "graph_gru", "graph_gru_no_graph"], default="gru"
+    )
+    parser.add_argument(
         "--device", choices=["auto", "cpu", "mps", "cuda"], default="auto"
     )
     parser.add_argument(
@@ -120,10 +125,16 @@ def main():
         )
     torch.set_num_threads(4)
     ds = load_metr_la()
-    data = NeuralData(ds, device)
+    graph_mode = {"gru": "none", "graph_gru": "road", "graph_gru_no_graph": "identity"}[
+        args.model
+    ]
+    data = NeuralData(ds, device, graph_mode)
+    out = OUT if args.model == "gru" else OUT / args.model
+    checkpoint_path = out / f"{args.model}.pt"
+    adjacency_hash = hashlib.sha256(ds.adjacency.tobytes()).hexdigest()
     # Keep test truth and predictions out of the trial-selection loop.
     val_truth = ds.windows("val")[1]
-    OUT.mkdir(parents=True, exist_ok=True)
+    out.mkdir(parents=True, exist_ok=True)
     if not args.evaluate_only:
         histories, trials = [], []
         best = np.inf
@@ -131,13 +142,16 @@ def main():
             score, epoch, state, history = train_trial(data, val_truth, lr, args)
             histories.extend(history)
             trials.append({"learning_rate": lr, "best_epoch": epoch, "val_mae": score})
-            pd.DataFrame(histories).to_csv(OUT / "history.csv", index=False)
-            pd.DataFrame(trials).to_csv(OUT / "tuning.csv", index=False)
+            pd.DataFrame(histories).to_csv(out / "history.csv", index=False)
+            pd.DataFrame(trials).to_csv(out / "tuning.csv", index=False)
             if score < best:
                 best = score
                 torch.save(
                     {
                         "state_dict": state,
+                        "model": args.model,
+                        "graph_mode": graph_mode,
+                        "adjacency_sha256": adjacency_hash,
                         "hidden_size": args.hidden_size,
                         "learning_rate": lr,
                         "best_epoch": epoch,
@@ -149,7 +163,7 @@ def main():
                         "horizons": list(REPORT_HORIZONS),
                         "data_sha256": hashlib.sha256(ds.speed.tobytes()).hexdigest(),
                     },
-                    CHECKPOINT,
+                    checkpoint_path,
                 )
         fig, ax = plt.subplots(figsize=(7, 4))
         for lr, part in pd.DataFrame(histories).groupby("learning_rate"):
@@ -165,9 +179,13 @@ def main():
         ax.legend()
         ax.grid(alpha=0.2)
         fig.tight_layout()
-        fig.savefig(OUT / "learning_curves.png", dpi=160)
+        fig.savefig(out / "learning_curves.png", dpi=160)
         plt.close(fig)
-    checkpoint = torch.load(CHECKPOINT, map_location="cpu", weights_only=True)
+    checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
+    if checkpoint.get("model", "gru") != args.model:
+        raise ValueError("Checkpoint model does not match the requested model")
+    if args.model != "gru" and checkpoint["adjacency_sha256"] != adjacency_hash:
+        raise ValueError("Checkpoint was trained on a different sensor graph")
     if checkpoint["sensor_ids"] != ds.sensor_ids or checkpoint["horizons"] != list(
         REPORT_HORIZONS
     ):
@@ -180,7 +198,8 @@ def main():
         rtol=0,
         atol=1e-7,
     )
-    model = SensorGRU(checkpoint["hidden_size"]).to(device)
+    model_type = SensorGRU if args.model == "gru" else GraphSensorGRU
+    model = model_type(checkpoint["hidden_size"]).to(device)
     model.load_state_dict(checkpoint["state_dict"])
     rows = []
     for split in ("val", "test"):
@@ -188,7 +207,7 @@ def main():
         if not np.isfinite(prediction).all():
             raise ValueError("Non-finite predictions")
         rows.extend(
-            {"model": "gru", "split": split, **r}
+            {"model": args.model, "split": split, **r}
             for r in errors_by_horizon(
                 prediction, ds.windows(split)[1], REPORT_HORIZONS
             )
@@ -197,7 +216,7 @@ def main():
             directory = ROOT / "outputs" / "predictions"
             directory.mkdir(parents=True, exist_ok=True)
             np.savez_compressed(
-                directory / "gru.npz",
+                directory / f"{args.model}.npz",
                 pred=prediction,
                 starts=ds.splits[split],
                 horizons=np.array(REPORT_HORIZONS),
@@ -205,11 +224,13 @@ def main():
     metrics = ROOT / "outputs" / "results" / "metrics.csv"
     old = pd.read_csv(metrics) if metrics.exists() else pd.DataFrame(columns=["model"])
     metrics.parent.mkdir(parents=True, exist_ok=True)
-    pd.concat([old[old.model != "gru"], pd.DataFrame(rows)], ignore_index=True).to_csv(
-        metrics, index=False, float_format="%.4f"
-    )
+    pd.concat(
+        [old[old.model != args.model], pd.DataFrame(rows)], ignore_index=True
+    ).to_csv(metrics, index=False, float_format="%.4f")
     metadata = {
-        "model": "shared per-sensor GRU with persistence residual",
+        "model": args.model,
+        "graph_mode": graph_mode,
+        "adjacency_sha256": adjacency_hash,
         "torch": str(torch.__version__),
         "python": platform.python_version(),
         "device": device,
@@ -220,7 +241,7 @@ def main():
         "normalizer": {"mean": data.mean, "std": data.std},
         "training_args": checkpoint["args"],
         "data_sha256": checkpoint["data_sha256"],
-        "checkpoint": "outputs/neural/gru.pt",
+        "checkpoint": str(checkpoint_path.relative_to(ROOT)),
         "limitations": [
             "One seed; device-specific numerical differences are possible.",
             "Fixed training sample of window/sensor rows, not every training row.",
@@ -228,7 +249,7 @@ def main():
             "Direct outputs only at 15, 30 and 60 minutes; no recursive future inputs.",
         ],
     }
-    (OUT / "run_metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
+    (out / "run_metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
     print(pd.DataFrame(rows).to_string(index=False))
 
 

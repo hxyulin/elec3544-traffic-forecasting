@@ -1,6 +1,6 @@
 # Spatiotemporal traffic speed forecasting
 
-Group 30, ELEC3544. This repository forecasts METR-LA traffic speeds 15, 30 and 60 minutes ahead. It contains the data pipeline, exploratory analysis, baselines and classical models, including validation tuning and spatial feature ablations. A shared per-sensor GRU provides the temporal neural baseline. The graph model remains to be implemented. See [remaining work](docs/tasks.md).
+Group 30, ELEC3544. This repository forecasts METR-LA traffic speeds 15, 30 and 60 minutes ahead. It contains the data pipeline, exploratory analysis, baselines and classical models, including validation tuning and spatial feature ablations. A shared per-sensor GRU provides the temporal neural baseline. A GRU with learned graph filtering tests the spatial contribution against a separately trained disabled-graph control. See [remaining work](docs/tasks.md).
 
 ## Run
 
@@ -40,6 +40,7 @@ These use DCRNN (Li et al., 2018) benchmark conventions. Adjacent split target p
 
 | Model | Inputs |
 |---|---|
+| Graph GRU | incoming and outgoing road-weighted speed/observation signals, followed by the shared GRU |
 | Temporal GRU | own sensor history, observation flags, and calendar inputs; shared weights |
 | Persistence | last observed speed |
 | Historical average | mean training speed for that sensor and 5-minute slot of the week |
@@ -110,6 +111,23 @@ uv run scripts/summarize_neural.py
 
 Training compares two learning rates using the same initialized weights and one million sampled window/sensor rows. Validation selects the checkpoint and learning rate; test evaluation follows selection. The checkpoint, settings, validation histories, and learning curves are in `outputs/neural/`. The evaluate-only command restores the saved weights and checks the data hash and sensor order. Run `uv run --extra neural pytest` to include the neural tests; they skip when PyTorch is absent.
 
-See the [temporal-model report](docs/temporal_model.md) for methods, measured results, and limits. Classical and GRU inputs differ, so the comparison is between implemented systems. The next experiment will compare temporal and graph variants under matched settings.
+See the [temporal-model report](docs/temporal_model.md) for methods, measured results, and limits. Classical and GRU inputs differ, so the comparison is between implemented systems. The [graph-model report](docs/graph_model.md) compares temporal and graph variants under matched settings.
 
 ![Temporal baseline compared with classical models](outputs/neural/comparison.png)
+
+## Graph comparison
+
+```sh
+uv run --extra neural scripts/train_gru.py --model graph_gru --device cpu
+uv run --extra neural scripts/train_gru.py --model graph_gru_no_graph --device cpu
+uv run --extra neural scripts/train_gru.py --model graph_gru --device cpu --evaluate-only
+uv run --extra neural scripts/train_gru.py --model graph_gru_no_graph --device cpu --evaluate-only
+uv run scripts/error_analysis.py
+uv run scripts/summarize_graph.py
+```
+
+The graph filter keeps incoming and outgoing road links separate, removes self-loops from neighbour aggregation, and row-normalizes weights. Isolated rows fall back to local values. Both variants use the same temporal architecture, initial GRU/head parameters, training sample, seed, two learning rates, and validation budget. The disabled graph is trained separately with identity supports. Each checkpoint checks the data and adjacency hashes on restoration.
+
+See [graph methods, ablation and results](docs/graph_model.md). The core model comparison is implemented; errors by sensor and time of day, forecast traces, and final report/presentation assembly remain.
+
+![Graph model and matched temporal control](outputs/neural/graph_gru/comparison.png)

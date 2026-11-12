@@ -16,17 +16,17 @@ See [classical-model methods and results](classical_models.md) for validation se
 
 The selected low-speed rule is 40 mph. The training-only relative rule remains a sensitivity comparison. The lag search does not establish upstream/downstream propagation. Boosting uses settings selected for the profile feature set across ablations; separately tuning every ablation and a purged-split sensitivity study remain optional extensions.
 
-## Implement the central model comparison
+## Central model comparison
 
 1. The shared per-sensor GRU is implemented. See [temporal baseline](temporal_model.md) for validation selection, results, learning curves, and checkpoint reproduction. Additional seeds and a wider search remain optional follow-up experiments.
-2. Add graph-based temporal modelling using the same data and forecast horizons. Document adjacency direction, self-loops, and normalization.
-3. Compare temporal-only and temporal-plus-graph models under comparable training settings. Include a no-graph ablation to isolate the spatial contribution. Report MAE and RMSE at 15, 30, and 60 minutes, alongside the strongest classical models.
+2. The GRU with learned graph filtering and its separately trained identity-graph control are implemented. See [graph methods and results](graph_model.md) for directed supports, self-loop handling, normalization, matched training, multi-horizon errors, and limits.
+3. The temporal-versus-graph comparison includes MAE and RMSE at 15, 30, and 60 minutes, low-speed errors, and classical neighbour boosting. Checkpoints, histories, and control verification are saved under `outputs/neural/`.
 
-The temporal baseline supplies the reference for the graph-model comparison. The graph model and disabled-graph ablation remain central to the proposal's research question.
+The core planned model sequence is now implemented. Repeated seeds, a larger search, deeper graph propagation, and purged-split sensitivity experiments remain optional extensions. Prioritize the remaining error analysis and final submission materials before widening the model search.
 
 ## Complete evaluation and submission
 
-- Extend the current congestion analysis when the graph model is added. Add error by time of day and sensor, plus representative prediction-versus-observation traces and failure cases. Account for missing targets and dependence between overlapping windows.
+- The congestion analysis covers the temporal and graph models. Add error by time of day and sensor, plus representative prediction-versus-observation traces and failure cases. Account for missing targets and dependence between overlapping windows.
 - Produce final comparison tables and figures from saved results. State whether spatial information helps, where it helps, and where it fails. Keep published reference scores separate from our own measurements.
 - Write the final report connecting the question, data, cleaning decisions, model iterations, results, and limitations. Existing checkpoint PDFs are not evidence of a finished final report.
 - Create presentation slides and rehearse the explanation of the model changes and evidence. No presentation source is present here.
