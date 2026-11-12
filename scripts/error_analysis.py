@@ -22,7 +22,8 @@ from traffic.metrics import masked_errors
 
 OUT = ROOT / "outputs" / "error_analysis"
 THRESHOLD_MPH = 40
-MODELS = {
+LABELS = {
+    "gru": "Temporal GRU",
     "persistence": "Persistence",
     "historical_average": "Historical average",
     "ridge_lags": "Ridge, lags only",
@@ -47,8 +48,12 @@ def main() -> None:
     horizons = np.array(REPORT_HORIZONS)
     truth = ds.speed[starts[:, None] + IN_STEPS + horizons[None, :] - 1]
     recorded = pd.read_csv(ROOT / "outputs" / "results" / "metrics.csv")
+    models = {
+        name: LABELS.get(name, name.replace("_", " "))
+        for name in recorded["model"].unique()
+    }
     rows = []
-    for model in MODELS:
+    for model in models:
         with np.load(ROOT / "outputs" / "predictions" / f"{model}.npz") as saved:
             np.testing.assert_array_equal(saved["starts"], starts)
             np.testing.assert_array_equal(saved["horizons"], horizons)
@@ -101,7 +106,7 @@ def main() -> None:
         ("below_40_mph", "at_least_40_mph"),
         ("Observed target below 40 mph", "Observed target at least 40 mph"),
     ):
-        for model, label in MODELS.items():
+        for model, label in models.items():
             part = table[(table.model == model) & (table.condition == condition)]
             ax.plot(part.minutes, part.mae, marker="o", label=label, linewidth=1.5)
         ax.set(title=title, xlabel="Forecast horizon (minutes)", xticks=[15, 30, 60])
@@ -120,7 +125,7 @@ def main() -> None:
         "condition_uses": "observed target speed",
         "threshold_status": "selected by training-only EDA; relative rule retained as sensitivity analysis",
         "missing_targets": "zero speeds excluded from all conditions",
-        "verification": f"All {len(MODELS) * len(horizons)} model/horizon aggregates match metrics.csv to its rounding precision; prediction starts, horizons, shape and finiteness checked; condition counts partition observed targets.",
+        "verification": f"All {len(models) * len(horizons)} model/horizon aggregates match metrics.csv to its rounding precision; prediction starts, horizons, shape and finiteness checked; condition counts partition observed targets.",
         "limitations": [
             "Descriptive analysis of existing predictions; no model selection or tuning.",
             "Profile models exclude the target calendar week during training; chronological benchmark splits retain overlapping target timestamps at boundaries.",
@@ -134,7 +139,7 @@ def main() -> None:
         .to_string()
     )
     print(
-        f"\nVerified all {len(MODELS) * len(horizons)} aggregate results against metrics.csv."
+        f"\nVerified all {len(models) * len(horizons)} aggregate results against metrics.csv."
     )
     print("\nTarget counts by condition:")
     print(

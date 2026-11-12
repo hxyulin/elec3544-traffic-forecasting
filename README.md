@@ -38,6 +38,7 @@ These use DCRNN (Li et al., 2018) benchmark conventions. Adjacent split target p
 
 | Model | Inputs |
 |---|---|
+| Temporal GRU | own sensor history, observation flags, and calendar inputs; shared weights |
 | Persistence | last observed speed |
 | Historical average | mean training speed for that sensor and 5-minute slot of the week |
 | Ridge, lags only | 12 lagged speeds, share of the window that was missing |
@@ -57,7 +58,7 @@ Training profile features exclude the target's whole calendar week from both ori
 uv run scripts/evaluate.py --tune      # tuning.csv and best_params.json
 uv run scripts/evaluate.py            # seven models, metrics and predictions
 uv run scripts/evaluate.py --ablation # ablation.csv
-uv run scripts/error_analysis.py      # seven-model condition analysis
+uv run scripts/error_analysis.py      # all recorded models by traffic condition
 uv run scripts/summarize_results.py   # baseline checks, report and figures
 ```
 
@@ -67,7 +68,7 @@ Tuning chooses ridge alpha separately for each feature set. Boosting settings ar
 
 The training-only comparison retains 40 mph as a common low-speed definition. It flags 10.50% of observed training readings, compared with 9.16% for the sensor-relative rule. Both are descriptive definitions. Whole-network outages account for about 86% of the increase in test missingness. Most selected neighbour pairs have their strongest residual correlation at zero lag; the analysis does not establish directional traffic propagation.
 
-## Test results
+## Classical test results
 
 MAE in mph, after calendar-week profile exclusion and validation selection:
 
@@ -87,6 +88,24 @@ Full MAE, RMSE, MAPE, tuning trials, and ablations are saved in `outputs/results
 
 ## Errors by traffic condition
 
-Run `uv run scripts/error_analysis.py` after evaluation. It checks prediction alignment, shape, finiteness, and all 21 model/horizon aggregates against `metrics.csv` before grouping by observed target speed. This is retrospective error analysis, not congestion detection. Missing targets are excluded, and overlapping windows produce dependent forecast-target pairs.
+Run `uv run scripts/error_analysis.py` after evaluation. It checks prediction alignment, shape, finiteness, and every recorded model/horizon aggregate against `metrics.csv` before grouping by observed target speed. This is retrospective error analysis, not congestion detection. Missing targets are excluded, and overlapping windows produce dependent forecast-target pairs.
 
 ![Test errors by observed target speed](outputs/error_analysis/condition_mae.png)
+
+## Temporal neural baseline
+
+Install the optional neural dependencies to train or restore the shared per-sensor GRU:
+
+```sh
+uv sync --extra neural
+uv run --extra neural scripts/train_gru.py --device cpu
+uv run --extra neural scripts/train_gru.py --device cpu --evaluate-only
+uv run scripts/error_analysis.py
+uv run scripts/summarize_neural.py
+```
+
+Training compares two learning rates using the same initialized weights and one million sampled window/sensor rows. Validation selects the checkpoint and learning rate; test evaluation follows selection. The checkpoint, settings, validation histories, and learning curves are in `outputs/neural/`. The evaluate-only command restores the saved weights and checks the data hash and sensor order. Run `uv run --extra neural pytest` to include the neural tests; they skip when PyTorch is absent.
+
+See the [temporal-model report](docs/temporal_model.md) for methods, measured results, and limits. Classical and GRU inputs differ, so the comparison is between implemented systems. The next experiment will compare temporal and graph variants under matched settings.
+
+![Temporal baseline compared with classical models](outputs/neural/comparison.png)

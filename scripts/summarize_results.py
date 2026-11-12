@@ -30,6 +30,19 @@ def markdown(frame):
 
 def main():
     metrics = pd.read_csv(OUT / "metrics.csv")
+    metrics = metrics[
+        metrics.model.isin(
+            [
+                "persistence",
+                "historical_average",
+                "ridge_lags",
+                "ridge",
+                "ridge_neighbours",
+                "gradient_boosting",
+                "gradient_boosting_neighbours",
+            ]
+        )
+    ]
     previous = pd.read_csv(OUT / "previous_metrics.csv")
     keys = ["model", "split", "horizon"]
     baseline = ["persistence", "historical_average"]
