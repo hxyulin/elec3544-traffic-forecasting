@@ -104,3 +104,121 @@ def test_future_speeds_do_not_change_identity_inputs(dataset):
         data.batch("test", rows)[0], changed.batch("test", rows)[0]
     ):
         torch.testing.assert_close(original, altered)
+
+
+def test_neighbour_messages_respect_direction_reliability_and_empty_rows(dataset):
+    from traffic.spatial_identity import neighbour_features
+
+    speed = dataset.speed.copy()
+    speed[20, :] = [0, 0, 40]
+    speed[21, :] = [20, 0, 50]
+    altered = replace(
+        dataset,
+        speed=speed,
+        filled=np.where(speed > 0, speed, 40),
+        adjacency=np.array([[0, 2, 1], [0, 0, 0], [0, 1, 0]], dtype=np.float32),
+    )
+    features = neighbour_features(altered)
+    mean, std = altered.normalizer()
+    mass = 5 / 9
+    np.testing.assert_allclose(features[21, 0, :4], 0, atol=1e-7)
+    np.testing.assert_allclose(features[21, 1, 4:], 0, atol=1e-7)
+    expected_speed = ((2 / 9) * (40 - mean) / std + (1 / 3) * (50 - mean) / std) / mass
+    np.testing.assert_allclose(
+        features[21, 0, 4:],
+        [expected_speed, 1 / 3, (2 / 9) * np.log(3) / mass, mass],
+        atol=1e-6,
+    )
+    assert np.isfinite(features).all()
+
+
+def test_neighbour_input_causality_and_prediction_alignment(dataset):
+    from traffic.spatial_identity import NeighbourIdentityData, NeighbourIdentityMLP
+
+    ds = replace(
+        dataset, adjacency=np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]], dtype=np.float32)
+    )
+    original = NeighbourIdentityData(ds, "cpu")
+    first_target = ds.splits["test"][1] + IN_STEPS
+    speed, filled = ds.speed.copy(), ds.filled.copy()
+    speed[first_target:] = 999
+    filled[first_target:] = 999
+    altered = NeighbourIdentityData(replace(ds, speed=speed, filled=filled), "cpu")
+    for a, b in zip(
+        original.batch("test", np.arange(3) + 3)[0],
+        altered.batch("test", np.arange(3) + 3)[0],
+    ):
+        torch.testing.assert_close(a, b)
+    for enabled in (True, False):
+        p = predict_identity(
+            NeighbourIdentityMLP(3, enabled), original, "val", batch_size=7
+        )
+        np.testing.assert_allclose(
+            p,
+            np.repeat(ds.filled[ds.splits["val"] + IN_STEPS - 1, None], 3, axis=1),
+            atol=1e-5,
+        )
+
+
+def test_spatial_control_removes_neighbour_information_and_gradients(dataset, tmp_path):
+    from traffic.spatial_identity import NeighbourIdentityData, NeighbourIdentityMLP
+
+    ds = replace(
+        dataset, adjacency=np.array([[0, 1, 0], [0, 0, 1], [1, 0, 0]], dtype=np.float32)
+    )
+    inputs, _ = NeighbourIdentityData(ds, "cpu").batch("val", np.arange(6))
+    torch.manual_seed(42)
+    active = NeighbourIdentityMLP(3).eval()
+    torch.nn.init.normal_(active.head.weight)
+    control = NeighbourIdentityMLP(3, False).eval()
+    control.load_state_dict(active.state_dict())
+    changed_x = inputs[0].clone()
+    changed_x[:, :, 7:] += 10
+    changed = (changed_x, *inputs[1:])
+    torch.testing.assert_close(control(*inputs), control(*changed))
+    assert not torch.allclose(active(*inputs), active(*changed))
+    control(*inputs).sum().backward()
+    assert torch.count_nonzero(control.spatial[0].weight.grad) == 0
+    path = tmp_path / "spatial.pt"
+    torch.save(active.state_dict(), path)
+    restored = NeighbourIdentityMLP(3).eval()
+    restored.load_state_dict(torch.load(path, weights_only=True))
+    torch.testing.assert_close(active(*inputs), restored(*inputs))
+    assert sum(p.numel() for p in active.parameters()) == sum(
+        p.numel() for p in control.parameters()
+    )
+
+
+def test_forecast_objectives_mask_targets_and_weight_large_errors():
+    from traffic.spatial_identity import forecast_loss
+
+    true = torch.tensor([[10.0, 0.0, 20.0]])
+    pred = torch.tensor([[12.0, 1000.0, 40.0]], requires_grad=True)
+    for objective in ("mae", "huber", "mixed"):
+        actual = forecast_loss(pred, true, 10.0, objective)
+        values = {"mae": [2.0, 20.0], "huber": [0.4, 17.5], "mixed": [1.68, 24.0]}
+        torch.testing.assert_close(actual, torch.tensor(sum(values[objective]) / 20))
+        grad = torch.autograd.grad(actual, pred)[0]
+        assert grad[0, 1] == 0
+        empty = forecast_loss(pred, torch.zeros_like(true), 10.0, objective)
+        assert empty == 0
+        assert torch.count_nonzero(torch.autograd.grad(empty, pred)[0]) == 0
+
+
+def test_spatial_loss_trials_keep_the_same_model_and_initialization():
+    import runpy
+    from pathlib import Path
+
+    runner = runpy.run_path(
+        str(Path(__file__).resolve().parents[1] / "scripts/extend_neural.py")
+    )
+    factory = runner["make_model"]
+    torch.manual_seed(44)
+    mae = factory("spatial", 3)
+    torch.manual_seed(44)
+    mixed = factory("spatial_mixed", 3)
+    assert mae.use_neighbours and mixed.use_neighbours
+    for name, value in mae.state_dict().items():
+        torch.testing.assert_close(value, mixed.state_dict()[name], rtol=0, atol=0)
+    assert runner["OBJECTIVES"]["spatial"] == "mae"
+    assert runner["OBJECTIVES"]["spatial_mixed"] == "mixed"

@@ -99,6 +99,12 @@ uv run scripts/summarize_graph.py
 
 A separate [neural investigation](docs/neural_investigation.md) tests a residual MLP with sensor/time embeddings, causal gap age, and fresh training samples each epoch. A matched identity ablation and a second-seed validation replication are recorded in `outputs/experiments/identity_mlp/`. The selected seed-42 model reaches test MAE of 2.829, 3.222 and 3.641 mph, improving on the baseline models above. Gradient boosting + neighbours retains lower RMSE and low-speed MAE. These experimental results are separate from the main table above. See the investigation for MAE, RMSE and low-speed tradeoffs and the limits of reusing an already-examined test period.
 
+A [validation follow-up](docs/neural_followup.md) diagnoses the MLP's large errors and compares Huber loss, mixed MAE/MSE loss, and a neighbour-aware MLP with a matched zero-message control. At 60 minutes, drops of at least 10 mph account for 5.4% of observed validation target pairs but 52.1% of the original identity MLP's squared error. The neighbour-aware model reduces mean validation MAE from 3.011 to 2.928 mph against its matched control. It improves MAE, RMSE and low-speed MAE over the original identity MLP; boosting retains lower RMSE and slightly lower mean low-speed MAE on validation. The follow-up keeps its checkpoints, histories, subgroup scores and comparison figures under `outputs/experiments/neural_followup/`. It adds no test scores.
+
+A [three-seed spatial replication](docs/spatial_replication.md) repeats the matched spatial/control comparison with seeds 43 and 44, alongside discovery seed 42. Neighbour histories reduce validation MAE against the control by 2.08–2.75% across these runs. The criterion passed. Across the same three seeds, spatial mixed loss lowers mean RMSE from 6.003 to 5.880 mph and mean low-speed MAE from 8.672 to 8.481 mph, while increasing mean MAE from 2.931 to 2.943 mph. The report retains every run and separates seed variation from generalization to another traffic period.
+
+A [controlled attention experiment](docs/attention.md) adds a compact Transformer over local and three road-neighbour history tokens, with an identical uniform-attention control. Learned attention reduces mean MAE against the MLP by 0.33% on benchmark validation and 0.40% and 0.35% on two purged rolling evaluation weeks. It also improves RMSE, while uniform attention has lower low-speed MAE in every comparison. Each rolling fold uses separate target weeks for tuning and evaluation, with preprocessing fitted to its training prefix. These are retrospective checks on the reused dataset and use one seed per trial.
+
 ## Data and evaluation decisions
 
 - METR-LA contains 34,272 five-minute steps from 207 sensors, from 1 March to 27 June 2012. Each window uses one hour of history and twelve future steps; we report steps 3, 6 and 12.
@@ -117,6 +123,7 @@ A separate [neural investigation](docs/neural_investigation.md) tests a residual
 | `tests/` | Alignment, missing-target, profile-exclusion and graph-control checks |
 | `outputs/results/` | Metrics, validation selection, feature ablations and previous baseline scores |
 | `outputs/neural/` | Selected checkpoints, training histories, settings and comparison figures |
+| `outputs/experiments/` | Separate neural investigations, validation controls and residual diagnoses |
 | `outputs/error_analysis/` | Condition and subgroup scores, trace values and case-selection records |
 | `outputs/eda/` | Training-data summaries, outage audits, congestion rules and sensor relationships |
 | `docs/` | Methods, results, interpretation, provenance and remaining submission work |

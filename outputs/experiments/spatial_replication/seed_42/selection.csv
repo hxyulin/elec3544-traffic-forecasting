@@ -1,0 +1,2 @@
+variant,seed,best_epoch,val_mae,parameters,matched_baseline_sample_epochs,checkpoint_sha256
+spatial_mixed,42,50,2.938246439269152,76569,50,433fcfcc5596d64744be7ecc44040031b681f28e185835288286a3a4e9761d64

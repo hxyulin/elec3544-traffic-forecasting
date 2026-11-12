@@ -1,0 +1,3 @@
+variant,seed,best_epoch,val_mae,parameters,matched_baseline_sample_epochs,checkpoint_sha256
+spatial_control,44,48,3.007637826391967,76569,0,3929f4b49c1b407c2583fc53d86148d979de4b2508c8c0750fbe3037d26e3293
+spatial,44,48,2.927239547132737,76569,0,9ee4ec239309019bca703a715fd19dae691c09f06a051e8eb1067b8bb7a3f145

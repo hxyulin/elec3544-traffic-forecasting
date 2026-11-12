@@ -1,0 +1,9 @@
+{
+  "variant": "mlp",
+  "best_epoch": 50,
+  "val_mae": 3.0291810124902923,
+  "parameters": 76569,
+  "checkpoint_path": "outputs/experiments/attention/late/mlp/model.pt",
+  "checkpoint_sha256": "b2f6562f481c6f9557120c3d0770c42b9390bcf5db1823da91e6e79659fe511c",
+  "history_path": "outputs/experiments/attention/late/mlp/history.csv"
+}

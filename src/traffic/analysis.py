@@ -6,6 +6,8 @@ from pathlib import Path
 
 import numpy as np
 
+from .metrics import masked_errors
+
 
 def load_predictions(
     path: Path, starts: np.ndarray, horizons: np.ndarray, shape: tuple[int, ...]
@@ -73,3 +75,59 @@ def verify_partition(rows: list[dict], aggregate: dict) -> None:
     np.testing.assert_allclose(
         recomposed, [aggregate[k] for k in ("mae", "rmse", "mape")], rtol=0, atol=1e-9
     )
+
+
+def residual_summary(pred, true):
+    """Masked bias, tail errors and additive squared-error totals."""
+    mask = true > 0
+    error = pred[mask].astype(np.float64) - true[mask]
+    absolute = np.abs(error)
+    if not len(error):
+        return dict(
+            n=0,
+            mae=np.nan,
+            rmse=np.nan,
+            mape=np.nan,
+            bias=np.nan,
+            p95_abs=np.nan,
+            p99_abs=np.nan,
+            rate_abs_ge20=np.nan,
+            sse=0.0,
+        )
+    return dict(
+        **masked_errors(pred, true),
+        bias=float(error.mean()),
+        p95_abs=float(np.quantile(absolute, 0.95)),
+        p99_abs=float(np.quantile(absolute, 0.99)),
+        rate_abs_ge20=float((absolute >= 20).mean()),
+        sse=float(np.square(error).sum()),
+    )
+
+
+def forecast_partitions(raw_origin, true, missing_count, age):
+    """Retrospective target-defined regimes for diagnosis, never model inputs."""
+    change = true - raw_origin
+    transition = np.select(
+        [raw_origin <= 0, change <= -10, change >= 10, true < 40],
+        [0, 1, 2, 3],
+        default=4,
+    )
+    return {
+        "transition": (
+            transition,
+            ["origin_missing", "drop_ge10", "rise_ge10", "stable_low", "stable_other"],
+        ),
+        "input_missing": (
+            np.select(
+                [missing_count == 0, missing_count <= 3, missing_count < 12],
+                [0, 1, 2],
+                default=3,
+            ),
+            ["none", "1_to_3", "4_to_11", "all_12"],
+        ),
+        "speed": ((true >= 40).astype(int), ["below_40", "at_least_40"]),
+        "origin_gap_age": (
+            np.select([age == 0, age <= 12, age <= 288], [0, 1, 2], default=3),
+            ["observed", "1_to_12", "13_to_288", "over_288"],
+        ),
+    }

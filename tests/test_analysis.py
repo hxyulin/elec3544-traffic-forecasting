@@ -53,3 +53,32 @@ def test_saved_forecasts_reject_misalignment_and_invalid_values(tmp_path):
     np.savez(path, starts=starts, horizons=horizons, pred=pred)
     with pytest.raises(ValueError, match="values"):
         load_predictions(path, starts, horizons, pred.shape)
+
+
+def test_residual_summary_masks_missing_targets_and_keeps_additive_error():
+    from traffic.analysis import residual_summary
+
+    result = residual_summary(
+        np.array([8.0, 40.0, 999.0, 29.0]), np.array([10.0, 20.0, 0.0, 30.0])
+    )
+    assert result["n"] == 3
+    assert result["bias"] == pytest.approx(17 / 3)
+    assert result["sse"] == 405
+    assert result["rate_abs_ge20"] == pytest.approx(1 / 3)
+    assert result["mae"] == pytest.approx(23 / 3)
+    empty = residual_summary(np.ones(2), np.zeros(2))
+    assert empty["n"] == 0 and empty["sse"] == 0 and np.isnan(empty["bias"])
+
+
+def test_forecast_partitions_use_boundary_and_missing_origin_precedence():
+    from traffic.analysis import forecast_partitions
+
+    groups = forecast_partitions(
+        np.array([0.0, 50.0, 20.0, 35.0, 60.0, 50.0, 20.0]),
+        np.array([30.0, 40.0, 30.0, 35.0, 60.0, 40.001, 29.999]),
+        np.array([0, 1, 3, 4, 11, 12, 0]),
+        np.array([0, 1, 12, 13, 288, 289, 0]),
+    )
+    np.testing.assert_array_equal(groups["transition"][0], [0, 1, 2, 3, 4, 4, 3])
+    np.testing.assert_array_equal(groups["input_missing"][0], [0, 1, 1, 2, 2, 3, 0])
+    np.testing.assert_array_equal(groups["origin_gap_age"][0], [0, 1, 1, 2, 2, 3, 0])

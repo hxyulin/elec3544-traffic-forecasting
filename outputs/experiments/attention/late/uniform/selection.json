@@ -1,0 +1,9 @@
+{
+  "variant": "uniform",
+  "best_epoch": 48,
+  "val_mae": 3.0358262836500933,
+  "parameters": 97001,
+  "checkpoint_path": "outputs/experiments/attention/late/uniform/model.pt",
+  "checkpoint_sha256": "625006a0b8f6890db1f8bc3526c0b1290efbb6505bd49560597394b302f97d8a",
+  "history_path": "outputs/experiments/attention/late/uniform/history.csv"
+}

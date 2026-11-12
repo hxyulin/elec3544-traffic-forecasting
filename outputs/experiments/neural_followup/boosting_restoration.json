@@ -1,0 +1,14 @@
+{
+  "scope": "train fit and validation prediction only; selected settings unchanged",
+  "data_sha256": "d051326da99e88c4e136b34e5f1b9500a4ab6fadd27d0d7f02cfe20d9b2e7d89",
+  "params": {
+    "max_leaf_nodes": 127,
+    "learning_rate": 0.05,
+    "min_samples_leaf": 400
+  },
+  "checks": "all 9 validation MAE/RMSE/MAPE values match recorded rounded values within 0.000051",
+  "thread_limits": {
+    "OMP_NUM_THREADS": "2",
+    "OPENBLAS_NUM_THREADS": "2"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "scope": "validation only",
+  "partition_checks": 84,
+  "prediction_sha256": {
+    "identity": "413cff962cc765f11e76b84e36496ac97004a45f4a1fa71711cb28f40dd6f835",
+    "boosting": "8bf6c49a08ed8089ff28d5622ca599d4efa5fdf6793403399f3e9c65dcc95907",
+    "huber": "6d8295ff6d3ebb4186083d43faeadd0348c79b49257ee670bcabaf05f5fb99ea",
+    "mixed": "a70aff53cdd7bc9ec3ef30be60549bfc82726f1ed45ec55c4a6628d355980ee5",
+    "spatial_control": "d37145364819753e2c373fbfd8a34a5b7208bd96c53bcd73dddc62120f5b0061",
+    "spatial": "3ffe4520c6e31c114dddc7dadda3e9c9b33cb1f1952c0c13953ab59000afa0d9"
+  },
+  "note": "transition groups use observed future targets for diagnosis only; counts are dependent forecast-target pairs"
+}

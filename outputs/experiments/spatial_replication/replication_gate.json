@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "criterion": "spatial MAE below matched control MAE separately for both new seeds 43 and 44",
+  "rows": [
+    {
+      "seed": 42,
+      "control_mae": 3.010873453327951,
+      "spatial_mae": 2.928092559015058,
+      "spatial_gain_pct": 2.749397993508962,
+      "improved": true
+    },
+    {
+      "seed": 43,
+      "control_mae": 2.9992247257907834,
+      "spatial_mae": 2.936857969332794,
+      "spatial_gain_pct": 2.07942925789083,
+      "improved": true
+    },
+    {
+      "seed": 44,
+      "control_mae": 3.007637826391967,
+      "spatial_mae": 2.927239547132737,
+      "spatial_gain_pct": 2.6731369898907564,
+      "improved": true
+    }
+  ],
+  "scope": "mean validation MAE; seed 42 is discovery, seeds 43 and 44 are replication"
+}

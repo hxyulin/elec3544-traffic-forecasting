@@ -1,0 +1,60 @@
+{
+  "scope": "validation only; no new test evaluation",
+  "partition_checks": 108,
+  "matched_sampling": [
+    {
+      "seed": 42,
+      "all_variants_matched_epochs": 50,
+      "epochs": {
+        "spatial_control": 50,
+        "spatial": 50,
+        "spatial_mixed": 50
+      }
+    },
+    {
+      "seed": 43,
+      "all_variants_matched_epochs": 50,
+      "epochs": {
+        "spatial_control": 50,
+        "spatial": 50,
+        "spatial_mixed": 50
+      }
+    },
+    {
+      "seed": 44,
+      "all_variants_matched_epochs": 50,
+      "epochs": {
+        "spatial_control": 50,
+        "spatial": 50,
+        "spatial_mixed": 50
+      }
+    }
+  ],
+  "preserved_prior_artifacts": 90,
+  "prediction_sha256": {
+    "spatial_control_seed42": "d37145364819753e2c373fbfd8a34a5b7208bd96c53bcd73dddc62120f5b0061",
+    "spatial_seed42": "3ffe4520c6e31c114dddc7dadda3e9c9b33cb1f1952c0c13953ab59000afa0d9",
+    "spatial_mixed_seed42": "4206034fd022d923c9dc5d085570835f60b036f7c7f46bbc169d88d48f33f935",
+    "spatial_control_seed43": "d2a8993f5924f1eb3bc2765d20c33a21c12a6f1d0bc4c772ef9698a28f379aeb",
+    "spatial_seed43": "f7b04340754ee698ae3081ed2bb4db598409392815335a1c1c408fc3742f3850",
+    "spatial_mixed_seed43": "828e278726baa9490d721627f0c7d9acb2e2bc480e76470dc4d2e899c8da50fa",
+    "spatial_control_seed44": "02fdebd3480217319a9c390eded54c46654e13ebcb5cceb012ccf721768b1d2b",
+    "spatial_seed44": "2854fe1dedbec6f4b971bae8488b1b58338507afdcbcbc1bbbf0707fec48e57e",
+    "spatial_mixed_seed44": "1929b544bb6c36e3a2604d700a71b256f8f3e5d1182875e552178e466ac3ce5e",
+    "boosting_fixed_reference": "8bf6c49a08ed8089ff28d5622ca599d4efa5fdf6793403399f3e9c65dcc95907"
+  },
+  "checkpoint_sha256": {
+    "spatial_control_seed42": "ac7fe3b9e38c7ec05d0d30f68905c89a91aedafd21db63e9b2eb265efd95806d",
+    "spatial_seed42": "78e9e9cac7da91e8d000670801f29714dcec1e68d45586d8ef308d5e35f4e6c7",
+    "spatial_mixed_seed42": "433fcfcc5596d64744be7ecc44040031b681f28e185835288286a3a4e9761d64",
+    "spatial_control_seed43": "e14c4ed5b387cfbad0618dafeb5612c5130e3c8486345dfa9cbae0cc1875647f",
+    "spatial_seed43": "e9a129d83f11e4f2d529187ed1c36bb5229d2186f1a7434aa2ef1e7423dd90fe",
+    "spatial_mixed_seed43": "33832e36e07dd6538d336d82df8225e332d5ab9c04d0e8bfa4aecd0824efcf51",
+    "spatial_control_seed44": "3929f4b49c1b407c2583fc53d86148d979de4b2508c8c0750fbe3037d26e3293",
+    "spatial_seed44": "9ee4ec239309019bca703a715fd19dae691c09f06a051e8eb1067b8bb7a3f145",
+    "spatial_mixed_seed44": "acfeedfb346730d2ce05896e2427708bc6bf30bf9ad140ac04ca8698ddf9c2d2"
+  },
+  "exact_checkpoint_restorations": 9,
+  "gate_passed": true,
+  "metric_aggregation": "mean over horizons, then mean and sample SD across seeds; RMSE is not pooled"
+}

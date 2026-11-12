@@ -1,0 +1,15 @@
+{
+  "sequence": "benchmark attention comparison first, then two purged rolling periods",
+  "variants": [
+    "mlp",
+    "uniform",
+    "attention"
+  ],
+  "seed": 42,
+  "budget": "50 epochs, fresh 1m rows/epoch, batch 2048; same optimizer and stopping policy",
+  "fixed_architecture": "16-channel, 2-head, one-block Transformer over 4 sensor histories; uniform-attention control",
+  "periods": "early: benchmark tuning target start minus 14 days; late: benchmark tuning target start; each has 7-day tuning then 7-day evaluation",
+  "outer_policy": "select all checkpoints on inner tuning only; evaluate each outer period after all three fits; no outer-score tuning or seed selection",
+  "benchmark": "MLP reuses the unchanged seed-42 MAE checkpoint and verifies exact validation predictions",
+  "limits": "retrospective sensitivity on already-used dataset periods; no claim of pristine unseen data; original benchmark test never scored"
+}

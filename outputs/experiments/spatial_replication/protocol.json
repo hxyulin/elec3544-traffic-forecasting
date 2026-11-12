@@ -1,0 +1,14 @@
+{
+  "scope": "validation only; no test generation or scoring",
+  "discovery_seed": 42,
+  "replication_seeds": [
+    43,
+    44
+  ],
+  "spatial_gate": "spatial MAE below matched control MAE separately for both new seeds 43 and 44",
+  "mixed_stage": "run spatial_mixed with seeds 42,43,44 only after spatial gate passes",
+  "mixed_objective": "(.8*mean(abs(error)) + .2*mean(error**2)/training_std)/training_std over observed targets",
+  "selection": "minimum mean validation MAE over horizons per checkpoint; report all three seeds; no best-seed selection",
+  "settings": "same 50-epoch cap, sample plan, optimizer, scheduler and stopping policy as prior follow-up",
+  "next_architectures": "temporal convolution or adaptive graph remain separate future experiments"
+}

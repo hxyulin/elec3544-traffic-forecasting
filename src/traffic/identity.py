@@ -76,17 +76,23 @@ class IdentityMLP(nn.Module):
         nn.init.zeros_(self.head.weight)
         nn.init.zeros_(self.head.bias)
 
+    def history_features(
+        self, x: torch.Tensor, age: torch.Tensor, *context
+    ) -> torch.Tensor:
+        return self.history(
+            torch.cat([x[:, :, :2].reshape(len(x), -1), age[:, None]], dim=1)
+        )
+
     def forward(
         self,
         x: torch.Tensor,
         sensor: torch.Tensor,
         target_tow: torch.Tensor,
         age: torch.Tensor,
+        *context,
     ) -> torch.Tensor:
         h = len(REPORT_HORIZONS)
-        history = self.history(
-            torch.cat([x[:, :, :2].reshape(len(x), -1), age[:, None]], dim=1)
-        )
+        history = self.history_features(x, age, *context)
         identity = self.sensor(sensor)
         if not self.use_identity:
             identity = identity * 0
