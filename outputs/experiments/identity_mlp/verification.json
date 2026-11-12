@@ -1,0 +1,9 @@
+{
+  "matched_training_sample_epochs": 50,
+  "parameters_per_variant": 44665,
+  "official_metrics_sha256": "1d0d8982cdb995e4479544473fd5c987f69eb7643289a7def62a2c9330a650b9",
+  "selection": "seed-42 winner chosen on mean validation MAE; seed 43 is a validation-only replication",
+  "test_model": "mlp_identity",
+  "reference_values": "existing metrics.csv for original models; raw separate experiment tables for candidates",
+  "test_policy": "Only validation winner scored; no further tuning based on this result. Existing test period was examined before this investigation; this is exploratory evidence."
+}

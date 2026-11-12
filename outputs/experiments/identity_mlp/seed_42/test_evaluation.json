@@ -1,0 +1,10 @@
+{
+  "selected_variant": "identity",
+  "selection_uses": "mean validation MAE only",
+  "selection_val_mae": 3.0159942362110086,
+  "best_epoch": 46,
+  "checkpoint_sha256": "6874f8d8b1ba69d3827e8022f4e66c1c1de79a81df1f499000239e6e49e385da",
+  "data_sha256": "d051326da99e88c4e136b34e5f1b9500a4ab6fadd27d0d7f02cfe20d9b2e7d89",
+  "device": "cpu",
+  "test_policy": "Only validation winner scored; no further tuning based on this result. Existing test period was examined before this investigation; this is exploratory evidence."
+}
