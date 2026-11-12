@@ -1,0 +1,125 @@
+{
+  "status": "replication",
+  "assistance": "AI-assisted exploratory material; student review required",
+  "variants": [
+    "one",
+    "two"
+  ],
+  "sizes": {
+    "current": [
+      64,
+      32,
+      128
+    ],
+    "wide": [
+      128,
+      64,
+      224
+    ]
+  },
+  "prefix_budget": 50,
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "epochs": 100,
+  "rows_per_epoch": 1000000,
+  "batch_size": 2048,
+  "selection": "minimum mean validation MAE across 3,6,12 steps; no test evaluation",
+  "optimizer": "shared fit_forecaster defaults; masked MAE; train-only normalization",
+  "confounds": "three seeds; capped training; reused validation period; wider encoder than historical baseline; no historical results reused",
+  "geometry": "weighted east/north displacement, straight distance, listed road distance in km for each orientation; no external road metadata",
+  "source": {
+    "src/traffic/.___init__.py": "ad3e223af989596b0e41af0e7c0b541122f0cfeafbe92e2b7b68389ba7523f9d",
+    "src/traffic/._analysis.py": "ad3e223af989596b0e41af0e7c0b541122f0cfeafbe92e2b7b68389ba7523f9d",
+    "src/traffic/._attention.py": "ad3e223af989596b0e41af0e7c0b541122f0cfeafbe92e2b7b68389ba7523f9d",
+    "src/traffic/._data.py": "ad3e223af989596b0e41af0e7c0b541122f0cfeafbe92e2b7b68389ba7523f9d",
+    "src/traffic/._identity.py": "ad3e223af989596b0e41af0e7c0b541122f0cfeafbe92e2b7b68389ba7523f9d",
+    "src/traffic/._metrics.py": "ad3e223af989596b0e41af0e7c0b541122f0cfeafbe92e2b7b68389ba7523f9d",
+    "src/traffic/._models.py": "ad3e223af989596b0e41af0e7c0b541122f0cfeafbe92e2b7b68389ba7523f9d",
+    "src/traffic/._multihop.py": "ad3e223af989596b0e41af0e7c0b541122f0cfeafbe92e2b7b68389ba7523f9d",
+    "src/traffic/._neural.py": "ad3e223af989596b0e41af0e7c0b541122f0cfeafbe92e2b7b68389ba7523f9d",
+    "src/traffic/._reporting.py": "ad3e223af989596b0e41af0e7c0b541122f0cfeafbe92e2b7b68389ba7523f9d",
+    "src/traffic/._spatial_identity.py": "ad3e223af989596b0e41af0e7c0b541122f0cfeafbe92e2b7b68389ba7523f9d",
+    "src/traffic/._training.py": "ad3e223af989596b0e41af0e7c0b541122f0cfeafbe92e2b7b68389ba7523f9d",
+    "src/traffic/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/traffic/analysis.py": "bdf0e2699ec8c3997aa7fd05f3660805217374f09f0640cebee9bf4b332ea2f1",
+    "src/traffic/attention.py": "91613ca8b474fdb14d4e7442ffbe6fbb03d274e76ba5a83fb60c1faeb5068fa8",
+    "src/traffic/data.py": "818b74f7dc0a85f6028cb54f820543102232f52b2391f1962f6b95096ed12fc0",
+    "src/traffic/identity.py": "11d6bb7587b40c58f0f0b1237ec5d343307d0f452a1af0f0ded8e01447bce2f2",
+    "src/traffic/metrics.py": "c6a2b5fab7118553104bf18d302cbbfbf508bd75ee7280b0d04fd414fdc3b4b8",
+    "src/traffic/models.py": "2fc29f5fa806786d2097986c54738e25319b0c1ce2a77602305ac543db70ac33",
+    "src/traffic/multihop.py": "4bb654fd9f84e4f6efe70920fad75dabcea38fbefcdfa0af0c1d544723eb79c0",
+    "src/traffic/neural.py": "2b0527740276dbd969a58985181e8d7b4f3a9c2d3b77d6fc9659b6688f3fe600",
+    "src/traffic/reporting.py": "ffcf98b3a15981108485a00634a084d826993690e5db4ad00331c55b2930d652",
+    "src/traffic/spatial_identity.py": "c3fa8211787b9d3a6a15ee4f615ac2b3c2133316e418a7f399b58ad7afa7bd0c",
+    "src/traffic/training.py": "f9474c86ef1058873ffd9906edd9cbe9a5435ac6bd27d4b9061abc456705e231",
+    "scripts/try_capacity.py": "59076af0dce447eaa0d9e73dce4c60e603314431d2ecbe04eac2ce2aec805baf"
+  },
+  "data": {
+    "distances_la.csv": "a576a2a3e28dbb959be6da22688e24dd1b246b81264595e129147c256cd53de5",
+    "metr_la.h5": "e00a068ca5ec0abcf225b5a044bf962cc1c32c4fef31bad8187c04f342ef0990",
+    "sensor_ids_la.txt": "3ba026caa2e6263ab0ea54b0fa1b125dbfa7216544cd05313b555e826292b990",
+    "sensor_locations_la.csv": "eb8ea96e07358b45d0e4ba3b89c2673fa20c54af50150249e627389e749ade6f"
+  },
+  "arrays": {
+    "speed": "d051326da99e88c4e136b34e5f1b9500a4ab6fadd27d0d7f02cfe20d9b2e7d89",
+    "adjacency": "b7a7d2f06dad90ad8dd6aee96fc388c075ffe974652828d97a5328abc2e1d857",
+    "distance": "daf75a11d368cbde6f5bf10bb8325a604dbf0bf03fdd55c7100b97142ea8896b",
+    "locations": "50cd751ca5ea0f74b9436080b116062e77d2010aed1cfc10ca891ea94a32dee9",
+    "train": "8db5db73200cb0fe391ff3c7a0825b6ade8a79e50f43e7cd2177c787be8a1784",
+    "val": "54c480fefdea713cd9b56d7ad71fa1aa5cfd8f955e0ce154c59998749a0c046d"
+  },
+  "normalizer": [
+    58.58462142944336,
+    12.822317123413086
+  ],
+  "splits": {
+    "train": [
+      0,
+      23962,
+      23963
+    ],
+    "val": [
+      23974,
+      27398,
+      3425
+    ]
+  },
+  "initialization": {
+    "current/42": {
+      "sha256": "6a1efd76ea37d1deb62bd75d65746f8588f9ff4802ff75878342486fa106c4ef",
+      "parameters": 82713
+    },
+    "current/43": {
+      "sha256": "f043f092c59f15f6232904ef8210fc56f3aa584e76ccefc80ac533601c3d6080",
+      "parameters": 82713
+    },
+    "current/44": {
+      "sha256": "c375c9d492e0a44bd3110030bf08846e5278cb677e4ea416817a6f13c0232d24",
+      "parameters": 82713
+    },
+    "wide/42": {
+      "sha256": "7ad2bc5e0e4127391e94fcc58d3d14b3087fb135ba7baa6690922111cb09bded",
+      "parameters": 229241
+    },
+    "wide/43": {
+      "sha256": "f61227d53487dfb55f8e603493b826ed3ff57cca4f0717c89b3566383c4e8c0b",
+      "parameters": 229241
+    },
+    "wide/44": {
+      "sha256": "3a9a38d84802561ac78a77ef881eed0acedee68c20435b6b9471c270932e96cb",
+      "parameters": 229241
+    }
+  },
+  "policy": {
+    "patience": 8,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "scheduler": "ReduceLROnPlateau factor .5 patience 3 threshold 1e-4",
+    "clipping": 1.0,
+    "timeout_per_run_seconds": 900,
+    "overall_timeout_seconds": 10800
+  }
+}

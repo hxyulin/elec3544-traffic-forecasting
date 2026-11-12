@@ -1,0 +1,6 @@
+Observed in this session before fitting:
+uv run --extra neural ruff format src/traffic/multihop.py src/traffic/training.py scripts/try_capacity.py tests/test_capacity.py
+uv run --extra neural ruff check src tests scripts: All checks passed.
+uv run --extra neural pytest -q: 53 passed in 15.06s.
+Reporting script subsequently formatted and import-sorted with ruff.
+Real-run exact restoration checks cover both retained checkpoints for each completed fit.

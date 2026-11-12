@@ -1,0 +1,32 @@
+{
+  "executable_source_hashes_match": true,
+  "checked": [
+    "src/traffic/__init__.py",
+    "src/traffic/analysis.py",
+    "src/traffic/attention.py",
+    "src/traffic/data.py",
+    "src/traffic/identity.py",
+    "src/traffic/metrics.py",
+    "src/traffic/models.py",
+    "src/traffic/multihop.py",
+    "src/traffic/neural.py",
+    "src/traffic/reporting.py",
+    "src/traffic/spatial_identity.py",
+    "src/traffic/training.py",
+    "scripts/try_capacity.py"
+  ],
+  "archive_metadata_only": [
+    "src/traffic/.___init__.py",
+    "src/traffic/._analysis.py",
+    "src/traffic/._attention.py",
+    "src/traffic/._data.py",
+    "src/traffic/._identity.py",
+    "src/traffic/._metrics.py",
+    "src/traffic/._models.py",
+    "src/traffic/._multihop.py",
+    "src/traffic/._neural.py",
+    "src/traffic/._reporting.py",
+    "src/traffic/._spatial_identity.py",
+    "src/traffic/._training.py"
+  ]
+}

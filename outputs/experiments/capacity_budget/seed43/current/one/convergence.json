@@ -1,0 +1,7 @@
+{
+  "observed_epochs": 75,
+  "cap_reached": false,
+  "early_stopped": true,
+  "prefix_score": 2.932822305507353,
+  "final_score": 2.9229803505768364
+}

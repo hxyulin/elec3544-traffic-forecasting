@@ -7,7 +7,7 @@ import torch
 from torch import nn
 
 from .data import IN_STEPS
-from .identity import IdentityData, gap_age
+from .identity import IdentityData, ResidualBlock, gap_age
 from .neural import graph_supports
 from .spatial_identity import NeighbourIdentityMLP
 
@@ -98,13 +98,27 @@ class MultihopData(IdentityData):
 class MultihopMLP(NeighbourIdentityMLP):
     """Same 24-slot encoder and parameters across all four input ablations."""
 
-    def __init__(self, n_sensors, variant="geometry"):
+    def __init__(self, n_sensors, variant="geometry", size="current"):
         super().__init__(n_sensors)
         keep = {"local": 0, "one": 8, "two": 16, "geometry": 24}[variant]
         self.register_buffer("input_mask", (torch.arange(24) < keep).float())
         self.spatial = nn.Sequential(
             nn.Linear(IN_STEPS * 24, 32, bias=False), nn.ReLU()
         )
+
+        if size not in ("current", "wide"):
+            raise ValueError(size)
+        if size == "wide":
+            self.history = nn.Sequential(nn.Linear(IN_STEPS * 2 + 1, 128), nn.ReLU())
+            self.spatial = nn.Sequential(
+                nn.Linear(IN_STEPS * 24, 64, bias=False), nn.ReLU()
+            )
+            self.blocks = nn.Sequential(
+                ResidualBlock(224, 0.1), ResidualBlock(224, 0.1)
+            )
+            self.head = nn.Linear(224, 1)
+            nn.init.zeros_(self.head.weight)
+            nn.init.zeros_(self.head.bias)
 
     def history_features(self, x, age, *context):
         masked = torch.cat([x[:, :, :7], x[:, :, 7:] * self.input_mask], dim=2)

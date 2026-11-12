@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import shutil
 import time
 
 import numpy as np
@@ -29,6 +30,7 @@ def fit_forecaster(
     rows_per_epoch=1_000_000,
     batch_size=2048,
     record_prediction=False,
+    prefix_epoch=None,
 ):
     optimizer = torch.optim.AdamW(model.parameters(), lr=0.001, weight_decay=1e-4)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
@@ -102,6 +104,13 @@ def fit_forecaster(
                 ),
                 directory / "model.pt",
             )
+            if prefix_epoch is not None and epoch <= prefix_epoch:
+                shutil.copyfile(directory / "model.pt", directory / "prefix_model.pt")
+                if record_prediction:
+                    shutil.copyfile(
+                        directory / "best_prediction.npy",
+                        directory / "prefix_prediction.npy",
+                    )
         elif epoch - best_epoch >= 8:
             break
         scheduler.step(score)
