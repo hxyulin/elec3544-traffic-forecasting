@@ -1,0 +1,10 @@
+period,variant,best_epoch,val_mae,parameters,checkpoint_path,checkpoint_sha256,history_path
+benchmark,mlp,46,2.928092559015058,76569,outputs/experiments/neural_followup/seed_42/spatial/model.pt,78e9e9cac7da91e8d000670801f29714dcec1e68d45586d8ef308d5e35f4e6c7,outputs/experiments/neural_followup/seed_42/spatial/history.csv
+benchmark,uniform,46,2.923397025890084,97001,outputs/experiments/attention/benchmark/uniform/model.pt,bfb146292fb8cec9d8a21ae88794f29903a0f1aaf4ffb1c5e1c8db2700a94e72,outputs/experiments/attention/benchmark/uniform/history.csv
+benchmark,attention,50,2.9185534401896596,97001,outputs/experiments/attention/benchmark/attention/model.pt,496f3b7025dcd60785d10f1fc8d2870423782346756d411968530c1c542ccabc,outputs/experiments/attention/benchmark/attention/history.csv
+early,mlp,46,2.9729571169726494,76569,outputs/experiments/attention/early/mlp/model.pt,d58af6905b9e486fbe5eb7b7447667d2bd4a6b5b708a628a0142289645b96322,outputs/experiments/attention/early/mlp/history.csv
+early,uniform,46,2.9571841092526276,97001,outputs/experiments/attention/early/uniform/model.pt,eaa031ba17075cbc775112b71b823c8ac7e71e837a0da10cf2f869cd2496e54c,outputs/experiments/attention/early/uniform/history.csv
+early,attention,45,2.961462609542771,97001,outputs/experiments/attention/early/attention/model.pt,21d0de8468ebcbfab146a557e10f3d10a9772ccbe15f679589a1401ab06302b3,outputs/experiments/attention/early/attention/history.csv
+late,mlp,50,3.0291810124902923,76569,outputs/experiments/attention/late/mlp/model.pt,b2f6562f481c6f9557120c3d0770c42b9390bcf5db1823da91e6e79659fe511c,outputs/experiments/attention/late/mlp/history.csv
+late,uniform,48,3.0358262836500933,97001,outputs/experiments/attention/late/uniform/model.pt,625006a0b8f6890db1f8bc3526c0b1290efbb6505bd49560597394b302f97d8a,outputs/experiments/attention/late/uniform/history.csv
+late,attention,50,3.0201936848933024,97001,outputs/experiments/attention/late/attention/model.pt,dcc67f93bc631f30d2c3227f2f2e3384d13d96f3e80b27a7c0b3c74a3b5776ce,outputs/experiments/attention/late/attention/history.csv

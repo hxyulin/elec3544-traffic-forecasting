@@ -1,0 +1,9 @@
+{
+  "variant": "attention",
+  "best_epoch": 45,
+  "val_mae": 2.961462609542771,
+  "parameters": 97001,
+  "checkpoint_path": "outputs/experiments/attention/early/attention/model.pt",
+  "checkpoint_sha256": "21d0de8468ebcbfab146a557e10f3d10a9772ccbe15f679589a1401ab06302b3",
+  "history_path": "outputs/experiments/attention/early/attention/history.csv"
+}

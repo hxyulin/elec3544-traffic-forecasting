@@ -1,0 +1,9 @@
+{
+  "variant": "mlp",
+  "best_epoch": 46,
+  "val_mae": 2.928092559015058,
+  "parameters": 76569,
+  "checkpoint_path": "outputs/experiments/neural_followup/seed_42/spatial/model.pt",
+  "checkpoint_sha256": "78e9e9cac7da91e8d000670801f29714dcec1e68d45586d8ef308d5e35f4e6c7",
+  "history_path": "outputs/experiments/neural_followup/seed_42/spatial/history.csv"
+}

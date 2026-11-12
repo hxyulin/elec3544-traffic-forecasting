@@ -1,0 +1,63 @@
+{
+  "scope": "benchmark validation and purged tuning/evaluation; original benchmark test not scored",
+  "partition_checks": 180,
+  "matched_samples": [
+    {
+      "period": "benchmark",
+      "matched_epochs": 50,
+      "epochs": {
+        "mlp": 50,
+        "uniform": 50,
+        "attention": 50
+      }
+    },
+    {
+      "period": "early",
+      "matched_epochs": 50,
+      "epochs": {
+        "mlp": 50,
+        "uniform": 50,
+        "attention": 50
+      }
+    },
+    {
+      "period": "late",
+      "matched_epochs": 50,
+      "epochs": {
+        "mlp": 50,
+        "uniform": 50,
+        "attention": 50
+      }
+    }
+  ],
+  "preserved_prior_artifacts": 145,
+  "checkpoint_sha256": {
+    "benchmark_mlp": "78e9e9cac7da91e8d000670801f29714dcec1e68d45586d8ef308d5e35f4e6c7",
+    "benchmark_uniform": "bfb146292fb8cec9d8a21ae88794f29903a0f1aaf4ffb1c5e1c8db2700a94e72",
+    "benchmark_attention": "496f3b7025dcd60785d10f1fc8d2870423782346756d411968530c1c542ccabc",
+    "early_mlp": "d58af6905b9e486fbe5eb7b7447667d2bd4a6b5b708a628a0142289645b96322",
+    "early_uniform": "eaa031ba17075cbc775112b71b823c8ac7e71e837a0da10cf2f869cd2496e54c",
+    "early_attention": "21d0de8468ebcbfab146a557e10f3d10a9772ccbe15f679589a1401ab06302b3",
+    "late_mlp": "b2f6562f481c6f9557120c3d0770c42b9390bcf5db1823da91e6e79659fe511c",
+    "late_uniform": "625006a0b8f6890db1f8bc3526c0b1290efbb6505bd49560597394b302f97d8a",
+    "late_attention": "dcc67f93bc631f30d2c3227f2f2e3384d13d96f3e80b27a7c0b3c74a3b5776ce"
+  },
+  "prediction_sha256": {
+    "benchmark_mlp_val": "3ffe4520c6e31c114dddc7dadda3e9c9b33cb1f1952c0c13953ab59000afa0d9",
+    "benchmark_uniform_val": "5ecd60d5b2a81a472f511066771447f4092d49ed141733acb449cf62a64a11a0",
+    "benchmark_attention_val": "ff4310861a698ec4b5600fbb37f10a19e897d60bfd28f9fc0caef001a1125f22",
+    "early_mlp_val": "e17f50ccc62b0cf44af527537ea34eb2a8a2ef19b2715b6aa6f6414d9851b513",
+    "early_mlp_evaluation": "317ae042b6631b66288e94e8cd9083a941e5184a980468fe03b5b60c1e26840d",
+    "early_uniform_val": "ff6e90d2c84985ff25ffc3daa52f54e3a047926441a48c6c0b16e986ae97626e",
+    "early_uniform_evaluation": "b3ecf7a7e38c562e5b099f327bb8e5b90253148e63ccf66b52bcaf9c8a099104",
+    "early_attention_val": "dbfc5e06b0ca7abd5266d840d60df8b3efb168cab9c951068fbbb46516ddcf4d",
+    "early_attention_evaluation": "1f89dc1caa635ac2d7b6a7f8a08f183363cfb32362f210f9be95b2bad12db664",
+    "late_mlp_val": "7fd2f6141845a5e1e40c041ce61b847a3dbf32d7b633db6ce7ed107f3cdac18e",
+    "late_mlp_evaluation": "919ffc3d336bdab8b629ff57c62a4f918265bbba69c5fc9f3f6262a412924b0f",
+    "late_uniform_val": "a9aa51c8ffa82e429743e33d9922bc2dd87e037e2f372cdbec8694bb4cd60fa6",
+    "late_uniform_evaluation": "7aa1d41d5bc7625333e9be30616eac75f5b84d735e69a1d63cb08df95de972cd",
+    "late_attention_val": "561d24423258a72ecc30cbf6206f1dbd1de42e4b3b70dc35af956bbfc45dac5e",
+    "late_attention_evaluation": "fab5511041befec96b3b22f14373f322097f9735710dc6c223ee15d163866501"
+  },
+  "disjoint_purged_target_periods": true
+}
