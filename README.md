@@ -125,3 +125,12 @@ uv run scripts/summarize_graph.py
 The graph filter keeps incoming and outgoing road links separate, removes self-loops from neighbour aggregation, and row-normalizes weights. Isolated rows fall back to local values. Both variants use the same temporal architecture, initial GRU/head parameters, training sample, seed, two learning rates, and validation budget. The disabled graph is trained separately with identity supports. Each checkpoint checks the data and adjacency hashes on restoration.
 
 ![Graph model and matched temporal control](outputs/neural/graph_gru/comparison.png)
+
+## Detailed error analysis
+
+```sh
+uv run scripts/error_analysis.py
+uv run scripts/detailed_error_analysis.py
+```
+
+The [error-analysis report](docs/error_analysis.md) covers all ten models by sensor, target hour, weekday/weekend, input availability, and speed change. Every subgroup partition is checked against pooled metrics. Representative sensors use training-only congestion ranks; failure examples are explicitly selected from test errors for illustration. CSV tables, trace values, selection rules, and figures are in `outputs/error_analysis/detailed/`. Counts are observed forecast-target pairs, with missing targets excluded.

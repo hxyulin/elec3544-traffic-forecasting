@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from traffic.analysis import load_predictions
 from traffic.data import IN_STEPS, REPORT_HORIZONS, ROOT, load_metr_la
 from traffic.metrics import masked_errors
 
@@ -56,12 +57,12 @@ def main() -> None:
     }
     rows = []
     for model in models:
-        with np.load(ROOT / "outputs" / "predictions" / f"{model}.npz") as saved:
-            np.testing.assert_array_equal(saved["starts"], starts)
-            np.testing.assert_array_equal(saved["horizons"], horizons)
-            pred = saved["pred"]
-        if pred.shape != truth.shape or not np.isfinite(pred).all():
-            raise ValueError(f"{model}: predictions have invalid shape or values")
+        pred = load_predictions(
+            ROOT / "outputs" / "predictions" / f"{model}.npz",
+            starts,
+            horizons,
+            truth.shape,
+        )
         for i, horizon in enumerate(horizons):
             y, p = truth[:, i], pred[:, i]
             masks = {
