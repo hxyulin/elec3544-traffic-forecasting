@@ -1,0 +1,3 @@
+variant,seed,best_epoch,val_mae,parameters
+shared,42,50,3.2973047545751974,44665
+identity,42,46,3.0159942362110086,44665

@@ -2,7 +2,7 @@
 
 Group 30, ELEC3544. We forecast METR-LA traffic speeds 15, 30 and 60 minutes ahead and test whether road-network information improves forecasts. The project compares persistence and historical averages, ridge regression, gradient boosting, a temporal GRU, and a GRU with learned graph filtering.
 
-## Results
+## Recorded baseline results
 
 Test-set MAE and RMSE in mph. Lower is better. Settings and neural checkpoints were selected on validation MAE; test scores describe the selected models. Values below come from [`metrics.csv`](outputs/results/metrics.csv).
 
@@ -20,7 +20,7 @@ Test-set MAE and RMSE in mph. Lower is better. Settings and neural checkpoints w
 
 The separately trained disabled-graph control reproduces every temporal-GRU test prediction exactly, so its duplicate row is omitted. It remains in the saved metrics and [control verification](outputs/neural/graph_gru/control_verification.json).
 
-**Gradient boosting + neighbours is the strongest measured model.** It reduces persistence MAE by 17.5%, 20.8% and 29.9% at the three horizons. Adding neighbour features improves boosting MAE at every horizon. For ridge, neighbour features slightly worsen MAE while improving RMSE. See the [feature ablations](docs/classical_models.md).
+**Gradient boosting + neighbours is the strongest model in this baseline comparison.** It reduces persistence MAE by 17.5%, 20.8% and 29.9% at the three horizons. Adding neighbour features improves boosting MAE at every horizon. For ridge, neighbour features slightly worsen MAE while improving RMSE. See the [feature ablations](docs/classical_models.md).
 
 The graph GRU improves temporal-GRU MAE by only 0.005, 0.012 and 0.015 mph. At 60 minutes it helps 118 of 207 sensors and worsens 89. This one-seed experiment shows a small measured spatial gain; it does not establish statistical significance or the best graph architecture. Classical boosting also receives sensor identity and weekly-profile features that the neural models do not receive.
 
@@ -94,6 +94,10 @@ uv run scripts/summarize_graph.py
 ```
 
 `evaluate.py` accepts a subset of model names, for example `uv run scripts/evaluate.py ridge`. Tuning and ablation repeat training. Neural variants share seed 42, a fixed sample of one million training window/sensor rows, batch size 2048, learning rates 0.001 and 0.003, and a 25-epoch cap with patience four. Histories, settings, package versions and checkpoints are saved under `outputs/`.
+
+## Further neural investigation
+
+A separate [neural investigation](docs/neural_investigation.md) tests a residual MLP with sensor/time embeddings, causal gap age, and fresh training samples each epoch. A matched identity ablation and a second-seed validation replication are recorded in `outputs/experiments/identity_mlp/`. The selected seed-42 model reaches test MAE of 2.829, 3.222 and 3.641 mph, improving on the baseline models above. Gradient boosting + neighbours retains lower RMSE and low-speed MAE. These experimental results are separate from the main table above. See the investigation for MAE, RMSE and low-speed tradeoffs and the limits of reusing an already-examined test period.
 
 ## Data and evaluation decisions
 

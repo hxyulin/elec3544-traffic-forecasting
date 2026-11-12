@@ -24,6 +24,10 @@ The selected low-speed rule is 40 mph. The training-only relative rule remains a
 
 The core planned model sequence is now implemented. Repeated seeds, a larger search, deeper graph propagation, and purged-split sensitivity experiments remain optional extensions. The planned error analysis is complete. Prioritize final submission materials before widening the model search.
 
+## Further neural investigation
+
+A [separate neural investigation](neural_investigation.md) tests sensor/time identities, causal gap age, a residual MLP, and resampled training rows. A matched sensor-identity ablation and second-seed validation replication are complete. The selected seed-42 model has an exploratory test comparison, separate from the recorded baseline results. Its MAE gain comes with higher RMSE and low-speed error than gradient boosting + neighbours. Decisions about adoption, a matched stronger graph model, and independent-period validation remain follow-up work.
+
 ## Complete evaluation and submission
 
 - Detailed error analysis is complete. See [error analysis](error_analysis.md) for sensor and target-time scores, input availability, speed changes, training-rank-selected traces, and explicit post-hoc failure cases. All groups exclude missing targets and retain observed counts; dependence between windows and sensors is documented.

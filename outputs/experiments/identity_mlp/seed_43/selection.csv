@@ -1,0 +1,2 @@
+variant,seed,best_epoch,val_mae,parameters
+identity,43,50,3.0152798583282863,44665

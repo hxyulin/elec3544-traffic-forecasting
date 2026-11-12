@@ -39,3 +39,4 @@ select = ["E4", "E7", "E9", "F", "I", "RUF007"]
 # Plot scripts choose the backend, and optional tests skip, before later imports.
 "scripts/*.py" = ["E402"]
 "tests/test_neural.py" = ["E402"]
+"tests/test_identity.py" = ["E402"]
