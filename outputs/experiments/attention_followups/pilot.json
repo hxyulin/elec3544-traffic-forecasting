@@ -1,0 +1,14 @@
+[
+  {
+    "variant": "combined",
+    "batches": 50,
+    "seconds": 4.2902833549999855,
+    "peak_bytes": 911047680
+  },
+  {
+    "variant": "rope",
+    "batches": 50,
+    "seconds": 0.3344694470000036,
+    "peak_bytes": 1399079936
+  }
+]

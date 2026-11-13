@@ -1,0 +1,13 @@
+seed,variant,epochs,rows,best_epoch,epoch_cap
+42,uniform,50,50000000,48,True
+42,content,50,50000000,48,True
+42,bias,50,50000000,48,True
+42,combined,50,50000000,48,True
+43,uniform,50,50000000,46,True
+43,content,50,50000000,48,True
+43,bias,50,50000000,46,True
+43,combined,50,50000000,49,True
+44,uniform,50,50000000,49,True
+44,content,50,50000000,49,True
+44,bias,50,50000000,49,True
+44,combined,50,50000000,50,True

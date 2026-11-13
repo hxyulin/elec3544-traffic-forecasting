@@ -14,6 +14,11 @@ outputs/experiments/dcrnn_reference/**/*.npy
 outputs/experiments/teacher_schedule/**/*.pt
 outputs/experiments/teacher_schedule/**/*.npy
 
+outputs/experiments/attention_spatial/**/*.pt
+outputs/experiments/attention_spatial/**/*.npy
+outputs/experiments/attention_temporal/**/*.pt
+outputs/experiments/attention_temporal/**/*.npy
+
 # Private assessed materials and course files stay outside Git.
 report/
 output/

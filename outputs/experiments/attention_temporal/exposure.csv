@@ -1,0 +1,7 @@
+seed,variant,epochs,rows,best_epoch,epoch_cap
+42,sinusoidal,50,50000000,46,True
+42,rope,50,50000000,48,True
+43,sinusoidal,50,50000000,49,True
+43,rope,50,50000000,45,True
+44,sinusoidal,35,35000000,27,False
+44,rope,50,50000000,44,True
