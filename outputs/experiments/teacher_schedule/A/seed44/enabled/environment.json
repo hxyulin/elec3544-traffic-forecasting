@@ -1,0 +1,7 @@
+{
+  "python": "3.12.14",
+  "torch": "2.15.0+cu132",
+  "cuda": "13.2",
+  "gpu": "NVIDIA GeForce RTX 5090",
+  "parameters": 32385
+}

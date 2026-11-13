@@ -1,0 +1,6 @@
+{
+  "epochs": true,
+  "best_epoch": true,
+  "metrics": true,
+  "prediction_sha256": true
+}

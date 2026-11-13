@@ -1,0 +1,177 @@
+{
+  "all_six_completed": true,
+  "all_restorations_exact": true,
+  "all_metrics_recomputed": true,
+  "all_window_hashes_verified": true,
+  "paired_sampling_rng_equal": true,
+  "runs": [
+    {
+      "seed": 42,
+      "variant": "enabled",
+      "completed": true,
+      "epochs": 50,
+      "best_epoch": 49,
+      "metrics": [
+        {
+          "mae": 2.6167228169224352,
+          "rmse": 5.038469162697758
+        },
+        {
+          "mae": 3.0152502369271352,
+          "rmse": 6.077414555076934
+        },
+        {
+          "mae": 3.539026951398212,
+          "rmse": 7.208462233023783
+        }
+      ],
+      "restored_exact": true,
+      "prediction_sha256": "ed956c54482351f5ca62ed88f4fc8517902ec3e83e324d9cf06971994afc6869",
+      "checkpoint_sha256": "29278194bb0f8ced95dc006831094ed18cfde59ce61cf2ebdfcf66f95c624c9e",
+      "seconds": 454.01628163200803,
+      "peak_memory": 195863552,
+      "windows": 241500,
+      "observed_targets": 556946314
+    },
+    {
+      "seed": 42,
+      "variant": "disabled",
+      "completed": true,
+      "epochs": 50,
+      "best_epoch": 50,
+      "metrics": [
+        {
+          "mae": 2.818442871645732,
+          "rmse": 5.714453023698783
+        },
+        {
+          "mae": 3.417615479843935,
+          "rmse": 7.184571544123767
+        },
+        {
+          "mae": 4.3565621541558315,
+          "rmse": 9.06553726668913
+        }
+      ],
+      "restored_exact": true,
+      "prediction_sha256": "98822be35bdebe62c179cb2afa63ae6d5f60430425cc31a102d8ccdf1e75d7e1",
+      "checkpoint_sha256": "d0505ff74e725353e8b1a4c1a93d9c14741d26ae1a6ff15e1b832f844dee44cf",
+      "seconds": 348.9613868750166,
+      "peak_memory": 195863552,
+      "windows": 241500,
+      "observed_targets": 556946314
+    },
+    {
+      "seed": 43,
+      "variant": "enabled",
+      "completed": true,
+      "epochs": 50,
+      "best_epoch": 47,
+      "metrics": [
+        {
+          "mae": 2.622215549545159,
+          "rmse": 5.0593304860161314
+        },
+        {
+          "mae": 3.00341087440807,
+          "rmse": 6.091345121144952
+        },
+        {
+          "mae": 3.5342433288542177,
+          "rmse": 7.2935529044741925
+        }
+      ],
+      "restored_exact": true,
+      "prediction_sha256": "e4ab29fc7332ebc59ca643e5d074abd86177592dd890ea42b6f916a37de5337c",
+      "checkpoint_sha256": "f110db775e37a8a1a23ebc94472cb01cf4affbd2c0c17a5fe7ac75bb0a722838",
+      "seconds": 456.7570159130264,
+      "peak_memory": 195863552,
+      "windows": 241500,
+      "observed_targets": 557461997
+    },
+    {
+      "seed": 43,
+      "variant": "disabled",
+      "completed": true,
+      "epochs": 50,
+      "best_epoch": 49,
+      "metrics": [
+        {
+          "mae": 2.8175076048321954,
+          "rmse": 5.707766122803098
+        },
+        {
+          "mae": 3.417742118962266,
+          "rmse": 7.1796902831457015
+        },
+        {
+          "mae": 4.3536464806526345,
+          "rmse": 9.034734989042311
+        }
+      ],
+      "restored_exact": true,
+      "prediction_sha256": "0adf9f7d218c54bf65bf243fe3f2d86f63c77c58b88467cff42feb6012fab3c3",
+      "checkpoint_sha256": "44eb211b3d267632e7be0709c9cf941306adeebc7d0d9e14a986e51161370b97",
+      "seconds": 351.60949351696763,
+      "peak_memory": 195863552,
+      "windows": 241500,
+      "observed_targets": 557461997
+    },
+    {
+      "seed": 44,
+      "variant": "enabled",
+      "completed": true,
+      "epochs": 50,
+      "best_epoch": 48,
+      "metrics": [
+        {
+          "mae": 2.6385178888166565,
+          "rmse": 5.112455477472251
+        },
+        {
+          "mae": 3.03899773933481,
+          "rmse": 6.163185450427101
+        },
+        {
+          "mae": 3.5856603570761907,
+          "rmse": 7.39361589517683
+        }
+      ],
+      "restored_exact": true,
+      "prediction_sha256": "81d689248f9be8e058061ba6aa853e765ebd64cb665d8d351b3115cd99725eee",
+      "checkpoint_sha256": "cbb64c7563999d04b22cfa2f292516cb28e6d692699e610e32befbdf66ac8326",
+      "seconds": 453.96339245303534,
+      "peak_memory": 195863552,
+      "windows": 241500,
+      "observed_targets": 556746453
+    },
+    {
+      "seed": 44,
+      "variant": "disabled",
+      "completed": true,
+      "epochs": 50,
+      "best_epoch": 46,
+      "metrics": [
+        {
+          "mae": 2.817800119271563,
+          "rmse": 5.724026352210089
+        },
+        {
+          "mae": 3.4187319629548094,
+          "rmse": 7.20094192569329
+        },
+        {
+          "mae": 4.358196060348035,
+          "rmse": 9.058897901631916
+        }
+      ],
+      "restored_exact": true,
+      "prediction_sha256": "aed47858a979a7cbee2637b42d6f43ee1617e02495f8915ec8b7a91332fa8fc9",
+      "checkpoint_sha256": "449de1cdfad02c4df7182ee79ad4ba7c9e7ca00a33b3afa741af898622f5486a",
+      "seconds": 349.4015401369543,
+      "peak_memory": 195863552,
+      "windows": 241500,
+      "observed_targets": 556746453
+    }
+  ]
+}

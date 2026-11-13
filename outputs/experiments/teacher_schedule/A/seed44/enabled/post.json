@@ -1,0 +1,20 @@
+{
+  "epoch": 49,
+  "metrics": [
+    {
+      "mae": 2.639743727572865,
+      "rmse": 5.192562343816759
+    },
+    {
+      "mae": 3.1196671259408126,
+      "rmse": 6.4373294405859935
+    },
+    {
+      "mae": 3.8518619019913323,
+      "rmse": 8.040103717669647
+    }
+  ],
+  "restored_exact": true,
+  "prediction_sha256": "8f1401e75581582199ff9ee876d2dd0581e9dc328b9c73afcff6a93fefd1cf5c",
+  "checkpoint_sha256": "06507b0a9a961583fe64fa507a0e477bc25ce218de6e14faee6b27b56765c93a"
+}

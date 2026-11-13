@@ -1,0 +1,70 @@
+{
+  "source_matches": {
+    "src/traffic/dcrnn.py": true,
+    "scripts/try_dcrnn.py": true,
+    "scripts/try_capacity.py": true,
+    "src/traffic/data.py": true
+  },
+  "data_matches": true,
+  "initialization_matches": true,
+  "42/enabled": {
+    "loss": true,
+    "val_mae": true,
+    "sample_sha256": true,
+    "sampling_before": true,
+    "sampling_after": true,
+    "observed_targets": true,
+    "lr": true,
+    "prior_selected_prediction_hash": "7f9426e6f5988df5d0f7b43626145285b00048aef1dfcc3a65b6bff461ffa056"
+  },
+  "42/disabled": {
+    "loss": true,
+    "val_mae": true,
+    "sample_sha256": true,
+    "sampling_before": true,
+    "sampling_after": true,
+    "observed_targets": true,
+    "lr": true,
+    "prior_selected_prediction_hash": "f0a7dcfb0f936f1f367244cf1c7b523682bb2026630394522cbe47d513e9acda"
+  },
+  "43/enabled": {
+    "loss": true,
+    "val_mae": true,
+    "sample_sha256": true,
+    "sampling_before": true,
+    "sampling_after": true,
+    "observed_targets": true,
+    "lr": true,
+    "prior_selected_prediction_hash": "919bf9e5c06e123703a1bfdfe580a7c158e9b619518d90dd2f7763651349aca2"
+  },
+  "43/disabled": {
+    "loss": true,
+    "val_mae": true,
+    "sample_sha256": true,
+    "sampling_before": true,
+    "sampling_after": true,
+    "observed_targets": true,
+    "lr": true,
+    "prior_selected_prediction_hash": "83828b28a4d64da81d399ad7e46012677a757aa2ca2758b37c9f7fd858e37f53"
+  },
+  "44/enabled": {
+    "loss": true,
+    "val_mae": true,
+    "sample_sha256": true,
+    "sampling_before": true,
+    "sampling_after": true,
+    "observed_targets": true,
+    "lr": true,
+    "prior_selected_prediction_hash": "8f1401e75581582199ff9ee876d2dd0581e9dc328b9c73afcff6a93fefd1cf5c"
+  },
+  "44/disabled": {
+    "loss": true,
+    "val_mae": true,
+    "sample_sha256": true,
+    "sampling_before": true,
+    "sampling_after": true,
+    "observed_targets": true,
+    "lr": true,
+    "prior_selected_prediction_hash": "f5fda826565b1c06eb8fc593e8711539f7884f81dd97269b7aaaf12302d6aa67"
+  }
+}

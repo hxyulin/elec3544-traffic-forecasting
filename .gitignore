@@ -11,6 +11,9 @@ tmp/
 outputs/experiments/dcrnn_reference/**/*.pt
 outputs/experiments/dcrnn_reference/**/*.npy
 
+outputs/experiments/teacher_schedule/**/*.pt
+outputs/experiments/teacher_schedule/**/*.npy
+
 # Private assessed materials and course files stay outside Git.
 report/
 output/

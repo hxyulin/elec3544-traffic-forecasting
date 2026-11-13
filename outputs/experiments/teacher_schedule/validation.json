@@ -1,0 +1,10 @@
+{
+  "local_tests": "59 passed in 4.56s",
+  "remote_tests": "59 passed in 3.50s",
+  "ruff_check": true,
+  "ruff_format": "68 files already formatted",
+  "prior_snapshot_files": 128,
+  "prior_snapshot_all_match": true,
+  "sequence_exit": 0,
+  "sequence_wall_seconds": 4903
+}
