@@ -1,7 +1,15 @@
 import numpy as np
+import pandas as pd
 import pytest
 
-from traffic.data import IN_STEPS, OUT_STEPS, causal_fill, load_metr_la, split_starts
+from traffic.data import (
+    IN_STEPS,
+    OUT_STEPS,
+    causal_fill,
+    load_metr_la,
+    prepare_metr_la,
+    split_starts,
+)
 from traffic.metrics import masked_errors
 from traffic.models import feature_matrix, targets, weekly_profile
 
@@ -35,6 +43,41 @@ def test_causal_fill_uses_only_the_past():
     speed = np.array([[0], [50], [0], [0], [60]], dtype=np.float32)
     filled = causal_fill(speed, train_end=5)
     np.testing.assert_array_equal(filled[:, 0], [55, 50, 50, 50, 60])
+
+
+def test_fill_fallback_ignores_values_after_training_and_preserves_targets():
+    speed = np.array([[0], [50], [0], [60], [0], [80]], dtype=np.float32)
+    original = speed.copy()
+    filled = causal_fill(speed, train_end=4)
+    np.testing.assert_array_equal(filled[:, 0], [55, 50, 50, 60, 60, 80])
+    changed = speed.copy()
+    changed[5] = 100
+    np.testing.assert_array_equal(causal_fill(changed, train_end=4)[:5], filled[:5])
+    np.testing.assert_array_equal(speed, original)
+
+
+def test_prepare_tables_aligns_sensors_without_files():
+    timestamps = pd.date_range("2012-03-01", periods=50, freq="5min")
+    speed = pd.DataFrame(
+        {"B": np.arange(50) + 20, "A": np.arange(50) + 40}, index=timestamps
+    )
+    speed.iloc[2, 0] = 0
+    distances = pd.DataFrame({"from": ["A", "B"], "to": ["B", "A"], "cost": [100, 200]})
+    locations = pd.DataFrame(
+        {"sensor_id": ["A", "B"], "latitude": [1, 2], "longitude": [3, 4]}
+    )
+
+    ds = prepare_metr_la(speed, distances, locations)
+
+    assert ds.sensor_ids == ["B", "A"]
+    assert ds.locations["latitude"].tolist() == [2, 1]
+    assert ds.distance[0, 1] == 200
+    assert ds.distance[1, 0] == 100
+    assert ds.speed[2, 0] == 0
+    assert ds.filled[2, 0] == 21
+    x, y = ds.windows("train")
+    np.testing.assert_array_equal(x[0], ds.filled[:12])
+    np.testing.assert_array_equal(y[0], ds.speed[12:24])
 
 
 def test_masked_errors_skip_zeros():

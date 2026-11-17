@@ -139,21 +139,25 @@ class MetrLA:
 
 
 def causal_fill(speed: np.ndarray, train_end: int) -> np.ndarray:
-    """Carry the last observed value forward; uses only past values, so no leakage.
+    """Forward-fill inputs, with training-fitted means for leading gaps.
 
-    Gaps at the very start of the series have no past value. They get the sensor's
-    mean observed speed over the training period.
+    Positive readings are observed; zero marks missing in METR-LA. Once a sensor
+    has an observation, filling uses only its past readings. Before that first
+    observation, use its mean over [0, train_end). This fallback can use later
+    training readings, but never readings beyond the training period.
+    The raw speed array is left unchanged for target masking and evaluation.
     """
-    frame = pd.DataFrame(np.where(speed > 0, speed, np.nan))
-    frame = frame.ffill()
+    observed_frame = pd.DataFrame(np.where(speed > 0, speed, np.nan))
+    forward_filled = observed_frame.ffill()
     train = speed[:train_end]
     sensor_mean = np.nanmean(np.where(train > 0, train, np.nan), axis=0)
-    frame = frame.fillna(pd.Series(sensor_mean))
-    return frame.to_numpy(dtype=np.float32)
+    filled = forward_filled.fillna(pd.Series(sensor_mean))
+    return filled.to_numpy(dtype=np.float32)
 
 
-def load_metr_la() -> MetrLA:
-    raw = download()
+def load_metr_la(raw_dir: Path = RAW_DIR) -> MetrLA:
+    """Read METR-LA files, downloading them into raw_dir if necessary."""
+    raw = download(raw_dir)
     speed_df = pd.read_hdf(raw / "metr_la.h5")
     sensor_ids = [str(c) for c in speed_df.columns]
     listed = (raw / "sensor_ids_la.txt").read_text().strip().split(",")
@@ -162,13 +166,28 @@ def load_metr_la() -> MetrLA:
             "sensor order in metr_la.h5 does not match sensor_ids_la.txt"
         )
 
+    return prepare_metr_la(
+        speed_df,
+        pd.read_csv(raw / "distances_la.csv"),
+        pd.read_csv(raw / "sensor_locations_la.csv", dtype={"sensor_id": str}),
+    )
+
+
+def prepare_metr_la(
+    speed_df: pd.DataFrame, distances: pd.DataFrame, locations: pd.DataFrame
+) -> MetrLA:
+    """Prepare in-memory tables without reading files or downloading data.
+
+    Speed columns define the sensor order for every array and location row.
+    Inputs retain the five-minute METR-LA sampling and zero-as-missing convention.
+    This applies the original window split; target timestamps overlap at its
+    boundaries. Purged period experiments use a separate split construction.
+    """
+    sensor_ids = [str(c) for c in speed_df.columns]
     speed = speed_df.to_numpy(dtype=np.float32)
     splits = split_starts(len(speed))
     train_end = int(splits["train"][-1]) + IN_STEPS + OUT_STEPS
-    adjacency, distance = build_adjacency(
-        sensor_ids, pd.read_csv(raw / "distances_la.csv")
-    )
-    locations = pd.read_csv(raw / "sensor_locations_la.csv", dtype={"sensor_id": str})
+    adjacency, distance = build_adjacency(sensor_ids, distances)
     locations = locations.set_index("sensor_id").loc[sensor_ids].reset_index()
 
     return MetrLA(

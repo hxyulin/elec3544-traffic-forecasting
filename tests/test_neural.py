@@ -27,25 +27,31 @@ def ds():
     )
 
 
-def test_batches_align_with_existing_windows_and_masks(ds):
+@pytest.mark.parametrize("shuffled", [False, True])
+def test_batches_align_with_existing_windows_and_masks(ds, shuffled):
     data = NeuralData(ds, "cpu")
     for split in ds.splits:
-        x, y = data.batch(split, np.arange(data.size(split)))
+        rows = np.arange(data.size(split))
+        if shuffled:
+            rows = np.random.default_rng(42).permutation(rows)
+        x, y = data.batch(split, rows)
         existing_x, existing_y = ds.windows(split)
         expected = (
             existing_y[:, np.array(REPORT_HORIZONS) - 1, :]
             .transpose(0, 2, 1)
             .reshape(-1, 3)
         )
-        np.testing.assert_array_equal(y.numpy(), expected)
+        np.testing.assert_array_equal(y.numpy(), expected[rows])
         recovered = x[:, :, 0].numpy() * data.std + data.mean
         np.testing.assert_allclose(
-            recovered, existing_x.transpose(0, 2, 1).reshape(-1, IN_STEPS), atol=1e-5
+            recovered,
+            existing_x.transpose(0, 2, 1).reshape(-1, IN_STEPS)[rows],
+            atol=1e-5,
         )
         starts = ds.splits[split]
         mask = ds.speed[starts[:, None] + np.arange(IN_STEPS)] > 0
         np.testing.assert_array_equal(
-            x[:, :, 1].numpy(), mask.transpose(0, 2, 1).reshape(-1, IN_STEPS)
+            x[:, :, 1].numpy(), mask.transpose(0, 2, 1).reshape(-1, IN_STEPS)[rows]
         )
 
 

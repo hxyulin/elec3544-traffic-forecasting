@@ -32,9 +32,8 @@ class IdentityData(NeuralData):
 
     def batch(self, split: str, rows: np.ndarray):
         x, y = super().batch(split, rows)
-        ids = torch.as_tensor(rows, device=self.device)
-        sensor = ids % self.n_sensors
-        origin = self.starts[split][ids // self.n_sensors] + IN_STEPS - 1
+        starts, sensor = self.row_coordinates(split, rows)
+        origin = starts + IN_STEPS - 1
         target_tow = self.tow[origin[:, None] + self.horizons]
         age = self.age[origin, sensor]
         return (x, sensor, target_tow, age), y

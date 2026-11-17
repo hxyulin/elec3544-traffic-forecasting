@@ -19,6 +19,11 @@ outputs/experiments/attention_spatial/**/*.npy
 outputs/experiments/attention_temporal/**/*.pt
 outputs/experiments/attention_temporal/**/*.npy
 
+
+# Local chart scratch files and generated exports
+.chart-data-*/
+output/
+
 # Private assessed materials and course files stay outside Git.
 report/
 output/

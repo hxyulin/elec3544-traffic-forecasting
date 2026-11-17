@@ -52,8 +52,8 @@ class AttentionData(NeighbourIdentityData):
     def batch(self, split, rows):
         inputs, y = super().batch(split, rows)
         sensor = inputs[1]
-        ids = torch.as_tensor(rows, device=self.device)
-        origin = self.starts[split][ids // self.n_sensors] + IN_STEPS - 1
+        starts, _ = self.row_coordinates(split, rows)
+        origin = starts + IN_STEPS - 1
         nodes = self.node_ids[sensor]
         steps = origin[:, None, None] - IN_STEPS + 1 + self.offsets[None, None]
         histories = self.features[:, :, :2][steps, nodes[:, :, None]].reshape(

@@ -91,10 +91,23 @@ class NeuralData:
     def size(self, split: str) -> int:
         return len(self.splits[split]) * self.n_sensors
 
-    def batch(self, split: str, rows: np.ndarray):
+    def row_coordinates(
+        self, split: str, rows: np.ndarray
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """Map window-major rows to (window starts, sensor indices).
+
+        With N sensors, row r means window r // N and sensor r % N.
+        Preserve row order so shuffled batches and chronological evaluation use
+        the same alignment in every data adapter.
+        """
         ids = torch.as_tensor(rows, device=self.device)
         sensor = ids % self.n_sensors
         starts = self.starts[split][ids // self.n_sensors]
+        return starts, sensor
+
+    def batch(self, split: str, rows: np.ndarray):
+        """Gather inputs (B, 12, channels) and raw mph targets (B, 3)."""
+        starts, sensor = self.row_coordinates(split, rows)
         x = self.features[starts[:, None] + self.offsets, sensor[:, None]]
         y = self.speed[starts[:, None] + self.target_offsets, sensor[:, None]]
         return x, y
